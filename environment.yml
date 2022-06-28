@@ -12,3 +12,4 @@ dependencies:
   - ffmpeg
   - mkl_fft
   - scikit-image
+  - seaborn
