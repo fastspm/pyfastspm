@@ -1,0 +1,14 @@
+name: pyfastspm
+dependencies:
+  - python >=3.6
+  - setuptools_scm
+  - packaging
+  - matplotlib
+  - h5py
+  - scipy
+  - numpy
+  - pillow
+  - tqdm
+  - ffmpeg
+  - mkl_fft
+  - scikit-image

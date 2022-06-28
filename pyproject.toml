@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "pyfastspm/_version.py"
+version_scheme = "python-simplified-semver"
+local_scheme = "no-local-version"
+
+[tool.isort]
+profile = "black"

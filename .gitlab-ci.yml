@@ -1,0 +1,68 @@
+default:
+  before_script:
+    - git config --global --add safe.directory $(pwd)
+
+stages:
+  - build_docker_image
+  - test
+  - build
+  - release
+
+build_docker_image_job:
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  stage: build_docker_image
+  before_script:
+    - ""
+  script:
+    - docker info
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest tests/
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE:latest
+  only:
+    - schedules
+
+test_job:
+  image: $CI_REGISTRY_IMAGE:latest
+  stage: test
+  script:
+    - pip install -e . --no-deps
+    - pytest -vx
+    - pytest -vx --nbmake examples/pyfastspm_converter.ipynb
+
+build_job:
+  image: $CI_REGISTRY_IMAGE:latest
+  stage: build
+
+  script:
+    - python -m build --skip-dependency-check --no-isolation
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 10 minutes
+
+upload_package:
+  image: $CI_REGISTRY_IMAGE:latest
+  stage: release
+  only:
+    - tags
+  script:
+    - python -m twine upload --repository testpypi dist/*
+
+pages:
+  image: $CI_REGISTRY_IMAGE:latest
+  stage: release
+  only:
+    - tags
+  script:
+    - pip install -e . --no-deps
+    - mkdir public
+    - cd docs/
+    - sphinx-apidoc --private --force -d 0 --no-headings --module-first --no-toc -o API/ ../pyfastspm
+    - sphinx-build -b html -d _build/doctrees . _build/html
+    - mv -v _build/html/* ../public/
+  artifacts:
+    paths:
+      - public

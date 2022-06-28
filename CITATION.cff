@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+title: pyfastspm
+type: software
+authors:
+  - given-names: Carlo
+    family-names: Dri
+    orcid: "https://orcid.org/0000-0001-9040-5746"
+  - given-names: Alexander
+    family-names: Bourgund
+  - given-names: Barbara
+    family-names: Lechner
+    orcid: "https://orcid.org/0000-0001-9974-1738"
+  - given-names: Daniel
+    family-names: Tiemann
+  - given-names: Jakob
+    family-names: Filser
+    orcid: "https://orcid.org/0000-0003-1203-2336"
+  - given-names: Karl
+    family-names: Briegel
+    orcid: "https://orcid.org/0000-0002-9745-7685"
+  - given-names: Mirco
+    family-names: Panighel
+  - given-names: Robert
+    family-names: Spitzenpfeil
+repository-code: "https://gitlab.com/fastspm/pyfastspm"
+url: "http://fastspm.gitlab.io/pyfastspm/"
+abstract: >-
+  pyfastspm is a python package to load, process,
+  filter and analyze scanning probe microscopy movies
+  acquired with the FAST module.
+license: MIT
+version: 0.9.18
+doi:
+date-released:

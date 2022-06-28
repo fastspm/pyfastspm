@@ -1,0 +1,73 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+.cache/
+.pytest_cache/
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+#PyCharm
+.idea/
+
+#VSCode
+.vscode/
+
+# Complexity
+output/*.html
+output/*/index.html
+
+# Sphinx
+docs/_build
+docs/API
+
+# Testing tools
+.ipynb_checkpoints/
+*.ipynb
+
+# setuptools_scm
+pyfastspm/_version.py
+
+# FAST output files (movies and images)
+*.mp4
+*.png
+*.jpg
+*.gsf
+*.bmp
+!docs/images/*
+
+examples/*
+!examples/*.h5
+!examples/*.ipynb
+
+# log files
+*.log
