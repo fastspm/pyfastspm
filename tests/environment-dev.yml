@@ -14,6 +14,8 @@ dependencies:
   - ffmpeg
   - mkl_fft
   - scikit-image
+  - seaborn
+  # dev dependencies:
   - sphinx
   - furo
   - pytest

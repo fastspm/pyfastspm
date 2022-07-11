@@ -5,26 +5,29 @@ message: >-
 title: pyfastspm
 type: software
 authors:
-  - given-names: Carlo
-    family-names: Dri
-    orcid: "https://orcid.org/0000-0001-9040-5746"
   - given-names: Alexander
     family-names: Bourgund
-  - given-names: Barbara
-    family-names: Lechner
-    orcid: "https://orcid.org/0000-0001-9974-1738"
-  - given-names: Daniel
-    family-names: Tiemann
-  - given-names: Jakob
-    family-names: Filser
-    orcid: "https://orcid.org/0000-0003-1203-2336"
   - given-names: Karl
     family-names: Briegel
     orcid: "https://orcid.org/0000-0002-9745-7685"
+  - given-names: Carlo
+    family-names: Dri
+    orcid: "https://orcid.org/0000-0001-9040-5746"
+  - given-names: Jakob
+    family-names: Filser
+    orcid: "https://orcid.org/0000-0003-1203-2336"
+  - given-names: Barbara
+    family-names: Lechner
+    orcid: "https://orcid.org/0000-0001-9974-1738"
   - given-names: Mirco
     family-names: Panighel
+    orcid: 'https://orcid.org/0000-0001-8413-5196'
+  - given-names: Christian
+    family-names: Schmid
   - given-names: Robert
     family-names: Spitzenpfeil
+  - given-names: Daniel
+    family-names: Tiemann
 repository-code: "https://gitlab.com/fastspm/pyfastspm"
 url: "http://fastspm.gitlab.io/pyfastspm/"
 abstract: >-
