@@ -34,7 +34,6 @@ abstract: >-
   pyfastspm is a python package to load, process,
   filter and analyze scanning probe microscopy movies
   acquired with the FAST module.
-license: MIT
-version: 0.9.18
-doi:
-date-released:
+license: "MIT, Apache-2.0"
+version: 1.0.1
+doi: 10.5281/zenodo.6824215
