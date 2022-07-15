@@ -21,7 +21,7 @@ authors:
     orcid: "https://orcid.org/0000-0001-9974-1738"
   - given-names: Mirco
     family-names: Panighel
-    orcid: 'https://orcid.org/0000-0001-8413-5196'
+    orcid: "https://orcid.org/0000-0001-8413-5196"
   - given-names: Christian
     family-names: Schmid
   - given-names: Robert
@@ -34,6 +34,11 @@ abstract: >-
   pyfastspm is a python package to load, process,
   filter and analyze scanning probe microscopy movies
   acquired with the FAST module.
-license: "MIT, Apache-2.0"
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.6824215
+    description: The concept DOI of the work.
+license:
+  - MIT
+  - Apache-2.0
 version: 1.0.1
-doi: 10.5281/zenodo.6824215
