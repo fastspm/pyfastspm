@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+
+## [1.0.2] - 2023-03-16
+### Fixed
+* `numpy` deprecation of `np.float` (#2)
+
 ### Changed
 * Creep correction: Both the `sin` and `root` creep correction where rederived with sticter constraints to prevent unphysical / nonsensical creep behaviour.
 * Added function constraints to documentation. The derivtation of the creep functions is not part of this repo as of now.
