@@ -1,4 +1,5 @@
 import logging
+import traceback
 from copy import copy
 
 import matplotlib.pyplot as plt
@@ -24,6 +25,10 @@ class Creep:
         from the sine function into a linear function.
         creep_mode: sets the creep function used in fit_creep(). Applicable arguments
         are 'sin' and 'root'. The Bezier creep fit has to be called separately.
+
+    Both x and t may refer to the "time" axis. The time axis is always noramlized to 1
+    in this class. As the time axis is of no relevance elsewhere in the code, this does not
+    affect the rest of pyfastspm.
     """
 
     def __init__(self, FastMovie_instance, index_to_linear=0.5, creep_mode="sin"):
@@ -41,12 +46,15 @@ class Creep:
         self.ygridfold, self.ygridstraight = self.ygrid()
         self.pixel_shift = self._get_shift(0.5)
         creep_functions = {"sin": self.sin_one_param, "root": self.root_creep}
-        creep_bounds = {
-            "sin": ([0.2, np.pi / 2 - 0.2]),
-            "root": ([0, -np.inf], [np.inf, 0]),
+        self.creep_bounds = {"sin": ([0.01, np.pi / 2 - 0.02]), "root": ([-np.inf, 0])}
+        creep_limit_function = {
+            "sin": self.sin_limit_function,
+            "root": self.root_limit_function,
         }
         self.creep_function = creep_functions[creep_mode]
-        self.bounds = creep_bounds[creep_mode]
+        self.limit_function = creep_limit_function[creep_mode]
+        self.limit_function()
+        self.bounds = self.creep_bounds[creep_mode]
 
     def _get_shift(self, imrange):
         """
@@ -80,61 +88,133 @@ class Creep:
 
         return abs(diff_in_pixels)
 
-    def sin_one_param(self, phase):
+    def sin_one_param(self, f):
         """
+        Creep described by a Sinusoid transitioning to a linear slope.
         Args:
-            phase: phase of sin function used to approximate creep.
-        Returns: Creep adapted grid of expected STM tip movement.
+            f: Frequency of the sinusoid. Frequency shoudl not be taken to literal in this
+            context. f merely describes to curvature of the sinusoid. After considering all
+            applicable restrictions (see Documentation), f is the only remaining free parameter.
+        Returns:
+            Creep corrected path in 1D. This will be reshaped to a 2D grid.
         """
-        self.ind = int(
-            (1 - self.rel_ind_raw) * self.number_xpixels * self.number_ypixels
-        )
+        ind = int((1 - self.rel_ind_raw) * self.number_xpixels * self.number_ypixels)
         # max_val is used to set the largest value the sin function will reach.
-        max_val = 1 - self.pixel_shift / (self.number_ypixels * self.rel_ind_raw)
-        premult_versine = 2 * (phase * max_val - np.sin(phase)) / (np.cos(phase) - 1)
+        y_max = 1 - self.pixel_shift / (self.number_ypixels * self.rel_ind_raw)
+        ϕ = np.arctan((y_max * f - np.sin(f)) / (np.cos(f) - 1))
+        x = np.linspace(0, 1, self.number_xpixels * self.number_ypixels - ind)
+        newvals = -np.tan(ϕ) / f + np.sin(f * x + ϕ) / (np.cos(ϕ) * f)
+        newvals = (
+            self.ygridstraight[ind]
+            + (self.ygridstraight[-1] - self.ygridstraight[ind]) * newvals
+        )
+        ycreep = [*self.ygridstraight[:ind], *newvals]
+        ycreep_up = ycreep + (self.ygridstraight[-1] - ycreep[-1]) / 2
+        return ycreep_up
 
-        def lin_out(x):
-            return self.ygridstraight[self.ind] + (
-                self.ygridstraight[-1] - self.ygridstraight[self.ind]
-            ) * (
-                (1 / phase)
-                * (np.sin(phase * x) - premult_versine * np.sin((phase * x) / 2) ** 2)
+    def sin_limit_function(self):
+        """
+        This function updates parameter limits for curve_fit when optimizing sin_one_param.
+        To stay within all applicable limits (see Documentation) the free parameters of the Sine creep
+        function need to stay within certain limits, which depend on the offset between the up and down frames.
+        This involves calculating the inverse of two functions (one of which is a Sinc).
+        To make this easier, these two function have been approxiamted by polynomials of order 5 and 7 respectively.
+        Obtaining the inverse of the funcion, then comes down to finding the roots of these polynomials after subtracting the
+        y-value of interest.
+
+        Returns: Nothing - updated the limits attribute directly.
+        """
+        y_max = 1 - self.pixel_shift / (self.number_ypixels * self.rel_ind_raw)
+        sinc_params = [
+            -1.10973034e-03,
+            1.09139764e-02,
+            -2.94504420e-03,
+            -1.65051603e-01,
+            -3.59723109e-04,
+            1.00001927e00,
+        ]
+        f_sinc = np.poly1d(sinc_params)
+        dev = [
+            0.01030309,
+            -0.07304712,
+            0.21509938,
+            -0.31886432,
+            0.25850888,
+            -0.06193083,
+            0.01681623,
+            0.49952107,
+        ]
+        f_dev = np.poly1d(dev)
+
+        if y_max > 0.62 and y_max < 0.64:
+            for i in (f_dev - y_max).roots:
+                if i.real < 1.7 and i.real > 0 and i.imag == 0:
+                    val_dev = i
+            for i in (f_sinc - y_max).roots:
+                if i.real < 1.7 and i.real > 0 and i.imag == 0:
+                    val_sinc = i
+
+            val = min(val_sinc.real, val_dev.real)
+
+        elif y_max <= 0.62 and y_max > 0.5:
+            for i in (f_dev - y_max).roots:
+                if i.real < 1.7 and i.real > 0 and i.imag == 0:
+                    val = i
+        elif y_max >= 0.64:
+            for i in (f_sinc - y_max).roots:
+                if i.real < 1.7 and i.real > 0 and i.imag == 0:
+                    val = i
+        else:
+            raise ValueError(
+                """y_max seems to be smaller than 0.5. This will produce unphysical results. This process is therefore terminated. One possible remedy is to set a larger value for index_to_linear."""
             )
 
-        vlin_out = np.vectorize(lin_out)
+        self.creep_bounds["sin"][1] = val.real
 
-        newvals = vlin_out(
-            np.linspace(0, 1, self.number_xpixels * self.number_ypixels - self.ind)
-        )
-
-        ycreep = [*self.ygridstraight[: self.ind], *newvals]
-
-        ycreep_up = ycreep + (self.ygridstraight[-1] - ycreep[-1]) / 2
-
-        ycreep_up = ycreep_up + [
-            (ycreep_up[0] - self.ygridstraight[0]) * t
-            for t in np.linspace(-1, 1, len(ycreep_up))
-        ]
-        return ycreep_up
-
-    def root_creep(self, b, t0):
-        """This function is adapted from:
-        J I J Choi et al 2014 J. Phys.: Condens. Matter 26 225003
-        y0 + a * t + b * np.sqrt(t - t0)
-        According to this paper, y0 and a are constrained by the following conditions.
-        Namely at t=0 -> 0 and t=t_stop -> y_max. t0 needs to be negative."""
+    def root_creep(self, t0):
+        """
+        Describes the creep as a heavily constrained root function (see Documentation)
+        After considering all applicable constraints, the function only has one free parameter remaining.
+        t0 alters the curvature of the root function.
+        """
         t = np.linspace(0, 1, self.number_ypixels * self.number_xpixels)
-        y_max = self.number_ypixels
+        corr = self.pixel_shift / self.number_ypixels
+        t0_roots = (np.sqrt(0.5 - t0) - np.sqrt(-t0)) / (np.sqrt(1 - t0) - np.sqrt(-t0))
+        bterm = (0.5 - (1 - corr) * t0_roots) / (0.5 - t0_roots)
+        s = (
+            (1 - corr - bterm) / (2 * np.sqrt(-t0) * (np.sqrt(1 - t0) - np.sqrt(-t0)))
+            + bterm
+            - 1
+        ) / (2)
         ycreep_up = (
-            -b * (-t0) ** 0.5
-            + t * (y_max + b * ((-t0) ** 0.5 - (1 - t0) ** 0.5))
-            + b * np.sqrt(t - t0)
+            (1 - 2 * s - corr + 2 * s - bterm)
+            / (np.sqrt(1 - t0) - np.sqrt(-t0))
+            * (np.sqrt(t - t0) - np.sqrt(-t0))
+            - 2 * s * t
+            + t * bterm
         )
-        ycreep_up -= y_max / 2
-        return ycreep_up
+        offset_value = ycreep_up[-1] / 2
+        ycreep_up -= offset_value
+        return ycreep_up * self.number_ypixels
+
+    def root_limit_function(self):
+        """
+        This function updates parameter limits for curve_fit when optimizing root_creep.
+        To stay within all applicable limits (see Documentation) the free parameters of the root creep
+        function need to stay within certain limits, which depend on the offset between the up and down frames.
+        This involves calculating the inverse of a function, which for simplicities sake has been approximated by a 3rd order polynomial.
+        In this case, this polynomial can be called directly to obtain the new limit.
+
+        Returns: Nothing - updated the limits attribute directly.
+        """
+        corr = self.pixel_shift / self.number_ypixels
+        poly_params = [-1.20681028e01, -8.77850843e-01, -1.55941856e-02, 1.06317446e-04]
+        f_poly = np.poly1d(poly_params)
+        val_poly = f_poly(corr)
+        self.creep_bounds["root"][1] = val_poly
 
     def _shape_to_grid(self, ycreep_up):
-        """Convert shape of input array array to mesh."""
+        """Convert shape of input array to mesh."""
         ycreep_down = ycreep_up.copy()
         ycreep_down = -ycreep_down[::-1]
         ycreep_down_mesh = np.reshape(
@@ -258,8 +338,9 @@ class Creep:
                         fitresult += popt
                         count += 1
                     except Exception as e:
-                        print("Something went wrong.")
-                        print("Caught Exception was {}".format(e))
+                        print(traceback.format_exc())
+                        # print('Something went wrong.')
+                        print('Caught Exception was "{}"'.format(e))
                         print("fit attempt failed, trying next...")
                         pass
             if count == 0:  ## Only happens if all curve_fit attempts fail.
@@ -270,7 +351,7 @@ class Creep:
                     )
                 )
             else:
-                avg_result = np.asarray(fitresult) / np.float(count)
+                avg_result = np.asarray(fitresult) / float(count)
                 print("creep fit succeeded, result: {}".format(avg_result))
                 self.processing_log.info(
                     "Creep fitting returned {} as optimal parameter values.".format(

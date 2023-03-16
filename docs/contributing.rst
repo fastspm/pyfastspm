@@ -1,7 +1,7 @@
 ============
 Contributing
 ============
-Contributions are welcome, and they are greatly appreciated! Every little bit helps, 
+Contributions are welcome, and they are greatly appreciated! Every little bit helps,
 and credit will always be given.
 
 Types of Contributions
@@ -56,13 +56,13 @@ local development.
 
 Installing the package in development mode
 ------------------------------------------
-Follow these instructions if you want to actively develop the  ``pyfastspm`` package. 
+Follow these instructions if you want to actively develop the  ``pyfastspm`` package.
 It is strongly recommended to use the ``mambaforge`` distribution (see :doc:`/installation`)
 
 1. clone the ``pyfastspm`` git repository on your system;
 2. in a terminal, ``cd`` into the cloned repository
 3. create the ``conda`` enviroment described inside the ``tests/environment-dev.yml``, using the following command:
-   
+
    .. code-block:: bash
 
        mamba create -f tests/environment-dev.yml
@@ -73,14 +73,14 @@ It is strongly recommended to use the ``mambaforge`` distribution (see :doc:`/in
 
        conda activate pyfastspm-dev
 
-5. to use and test the package making it available in the whole environment, use the 
+5. to use and test the package making it available in the whole environment, use the
 following command issued from the terminal:
 
    .. code-block:: bash
 
        pip install -e . --no-deps
 
-This installs the package in development mode, so that every modification to the source is 
+This installs the package in development mode, so that every modification to the source is
 immediately available to be imported by any package living in in the same environment.
 
 Working on the code

@@ -176,6 +176,25 @@ The method only has the following optional arguments:
 
 The method returns the creep adjusted grid .
 
+The ``'sin'`` creep function is subject to the following constraints:
+
+1) 𝑓′(t)|_(t=0) = 1
+2) 𝑓(t)|_(t=0) = 0
+3) 𝑓(t)|_(t=1) = 𝑦𝑚𝑎𝑥
+4) 𝑓′′(t)|_(t=0) ≤ 0
+5) 𝑓′(t)|_(t=1) ≥ 0
+
+The ``'root'`` creep function is subject to the following constraints:
+
+1) 𝑓(t)|_(t=0) = 0
+2) 𝑓(t)|_(t=1) = 1 − 2𝑠 − 𝑐𝑜𝑟𝑟
+3) 𝑓(t)|_(t=0.5) = 0.5 − 𝑠
+4) 𝑓′(t)|_(t=0) = 1
+5) 𝑓′(t)|_(t=1) ≥ 0
+
+Where corr is the distance difference in position between up and down frames and s is the deviation from a linear movement at x=0.5 for a normalized time axis.
+
+
 Drift correction
 ================
 
@@ -184,7 +203,6 @@ The drift correction uses a fft-correlation to construct a drift path. The frame
     drift = pyfastspm.Drift(ft, stepsize, corrspeed, show_path, boxcar)
 
 The class has the following arguments:
-
 - ``stepsize`` (int): Distance between two frames that are correlated.
 - ``corrspeed`` (int): Distance between two correlation e.g. if two correlation between 1-20, 3-22, 5-24 ... if one 1-20, 2-21 ...
 - ``show_path`` (boolean): If True the driftpath is plotted.
