@@ -1,4 +1,4 @@
-<h2 align="center">FAST movie processor</h2> 
+<h2 align="center">FAST movie processor</h2>
 
 <p align="center">
 <a href="https://gitlab.com/fastspm/pyfastspm/-/commits/release"><img alt="pipeline status" src="https://gitlab.com/fastspm/pyfastspm/badges/release/pipeline.svg" /></a>

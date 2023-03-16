@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-* Creep correction: Both the `sin` and `root` creep correction where rederived with sticter constraints to prevent unphysical / nonsensical creep behaviour. 
+* Creep correction: Both the `sin` and `root` creep correction where rederived with sticter constraints to prevent unphysical / nonsensical creep behaviour.
 * Added function constraints to documentation. The derivtation of the creep functions is not part of this repo as of now.
 
 ### Added

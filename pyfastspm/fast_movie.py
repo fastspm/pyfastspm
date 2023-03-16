@@ -821,7 +821,6 @@ class FastMovie:
     def correct_phase(
         self, index_frame_to_correlate, sigma_gauss=0, manual_x=0, manual_y=0
     ):
-
         if self.mode != "movie":
             self.reshape_to_movie("udi")
 

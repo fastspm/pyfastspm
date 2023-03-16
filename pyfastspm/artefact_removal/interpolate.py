@@ -66,7 +66,6 @@ def _output_x_grid(ny, nx):
 def get_interpolation_matrix(
     points_to_triangulate, grid_points
 ):  # grid_points has to be a list of tuples!
-
     """
     Creates matrix containing all the relevant information for interpolating
     values measured at the same relative postion to a grid.

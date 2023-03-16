@@ -84,7 +84,6 @@ class FFMPEG_VideoWriter:
         threads=None,
         ffmpeg_params=None,
     ):
-
         if not try_cmd(FFMPEG_BIN)[0]:
             raise OSError(
                 "Cannot find ffmpeg executable. "
@@ -168,7 +167,6 @@ class FFMPEG_VideoWriter:
             )
 
             if "Unknown encoder" in ffmpeg_error:
-
                 error += (
                     "\n\nThe video export "
                     "failed because FFMPEG didn't find the specified "
@@ -179,7 +177,6 @@ class FFMPEG_VideoWriter:
                 ) % (self.codec)
 
             elif "incorrect codec parameters ?" in ffmpeg_error:
-
                 error += (
                     "\n\nThe video export "
                     "failed, possibly because the codec specified for "
@@ -194,7 +191,6 @@ class FFMPEG_VideoWriter:
                 ) % (self.codec, self.ext)
 
             elif "encoder setup failed" in ffmpeg_error:
-
                 error += (
                     "\n\nThe video export "
                     "failed, possibly because the bitrate you specified "
@@ -202,7 +198,6 @@ class FFMPEG_VideoWriter:
                 )
 
             elif "Invalid encoder type" in ffmpeg_error:
-
                 error += (
                     "\n\nThe video export failed because the codec "
                     "or file extension you provided is not a video"
