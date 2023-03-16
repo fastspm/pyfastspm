@@ -55,11 +55,11 @@ def pixel_trace(fast_movie, points, interpolation_order=0, mask=None):
     num_frames = end_frame - start_frame + 1
 
     trace = {
-        "timestamps": np.zeros(num_frames, dtype=np.float),
-        "x_pos": np.zeros(num_frames, dtype=np.float),
-        "y_pos": np.zeros(num_frames, dtype=np.float),
+        "timestamps": np.zeros(num_frames, dtype=float),
+        "x_pos": np.zeros(num_frames, dtype=float),
+        "y_pos": np.zeros(num_frames, dtype=float),
         "frames": np.zeros(num_frames, dtype=np.uint32),
-        "values": np.zeros(num_frames, dtype=np.float),
+        "values": np.zeros(num_frames, dtype=float),
     }
 
     # build a dictionary of the position increments per each key frame pairs
@@ -90,7 +90,7 @@ def pixel_trace(fast_movie, points, interpolation_order=0, mask=None):
             (x_mask + x - mask_x_center, y_mask + y - mask_y_center)
         )
         trace["values"][idx] = map_coordinates(
-            fast_movie.data[frame, :, :].astype(np.float),
+            fast_movie.data[frame, :, :].astype(float),
             mask_coords,
             order=interpolation_order,
         ).mean()

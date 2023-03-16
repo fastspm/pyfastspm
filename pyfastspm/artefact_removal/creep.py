@@ -351,7 +351,7 @@ class Creep:
                     )
                 )
             else:
-                avg_result = np.asarray(fitresult) / np.float(count)
+                avg_result = np.asarray(fitresult) / float(count)
                 print("creep fit succeeded, result: {}".format(avg_result))
                 self.processing_log.info(
                     "Creep fitting returned {} as optimal parameter values.".format(
