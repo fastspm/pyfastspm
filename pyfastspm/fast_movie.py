@@ -181,22 +181,6 @@ class FastMovie:
             np.array(self.h5file["data"], dtype=np.float32), self.x_phase + y_phase_roll
         )
 
-        # Correct data inversion
-        inversion_factor = 1
-        if self.metadata["ExperimentInfo.FileFormatVersion"] != "":
-            if (
-                parse(self.metadata["ExperimentInfo.FileFormatVersion"]) >= parse("2.4")
-                and not self.metadata["Acquisition.LogAmp"]
-            ):
-                if (
-                    self.metadata["GapVoltage.Invert_Data"]
-                    and self.metadata["GapVoltage.Voltage"] < 0.05
-                ):
-                    inversion_factor *= -1
-                if self.metadata["Data.Invert"]:
-                    inversion_factor *= -1
-                self.data *= inversion_factor
-
         self.mode = "timeseries"
         self.channels = "timeseries"
         self.channel_list = ("timeseries",)
