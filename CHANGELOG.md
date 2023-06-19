@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [1.0.3] - 2023-06-19
+### Fixed
+* Compatibility with file format version 2.6 (#4)
+
+### Changed
+* Removed any data inversion on loading.
+
 ## [1.0.2] - 2023-03-16
 ### Fixed
 * `numpy` deprecation of `np.float` (#2)
