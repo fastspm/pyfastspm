@@ -7,16 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [1.0.3] - 2023-06-20
+### Fixed
+* Compatibility with file format version 2.6 (#4)
+* several typos in CHANGELOG
+
+### Changed
+* Removed any data inversion on loading.
+
 ## [1.0.2] - 2023-03-16
 ### Fixed
 * `numpy` deprecation of `np.float` (#2)
 
 ### Changed
-* Creep correction: Both the `sin` and `root` creep correction where rederived with sticter constraints to prevent unphysical / nonsensical creep behaviour.
-* Added function constraints to documentation. The derivtation of the creep functions is not part of this repo as of now.
+* Creep correction: Both the `sin` and `root` creep corrections were re-derived with more strict constraints to prevent un-physical/nonsensical creep behavior.
+* Added function constraints to documentation. The derivation of the creep functions is not part of this repo as of now.
 
 ### Added
-* Functions `sin_limit_function` and `root_limit_function` to automatically adapt the bounds for the optimizer when appriximating the creep bahaviour in `sin` or `root` mode. This prevents pyfast from crashing / skipping the creep correction if bounds are defined too losely. This is considered a bug fix.
+* Functions `sin_limit_function` and `root_limit_function` to automatically adapt the bounds for the optimizer when approximating the creep behavior in `sin` or `root` mode. This prevents `pyfastspm` from crashing / skipping the creep correction if bounds are defined too loosely.
 
 ## [1.0.1] - 2022-07-20
 ###  Changed
