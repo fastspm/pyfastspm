@@ -47,17 +47,17 @@ def label_image(rgb_image, text=None, font_size=0.05, border=0.01):
             x_pos = image.size[0] * border
             y_pos = image.size[1] * border
         elif text[txt_label] == "top-right":
-            x_pos = image.size[0] * (1 - border) - font.getsize(txt_label)[0]
+            x_pos = image.size[0] * (1 - border) - font.getbbox(txt_label)[0]
             y_pos = image.size[1] * border
         elif text[txt_label] == "center":
-            x_pos = 0.5 * (image.size[0] - font.getsize(txt_label)[0])
-            y_pos = 0.5 * (image.size[1] - font.getsize(txt_label)[1])
+            x_pos = 0.5 * (image.size[0] - font.getbbox(txt_label)[0])
+            y_pos = 0.5 * (image.size[1] - font.getbbox(txt_label)[1])
         elif text[txt_label] == "bottom-left":
             x_pos = image.size[0] * border
-            y_pos = image.size[1] * (1 - border) - font.getsize(txt_label)[1]
+            y_pos = image.size[1] * (1 - border) - font.getbbox(txt_label)[1]
         elif text[txt_label] == "bottom-right":
-            x_pos = image.size[0] * (1 - border) - font.getsize(txt_label)[0]
-            y_pos = image.size[1] * (1 - border) - font.getsize(txt_label)[1]
+            x_pos = image.size[0] * (1 - border) - font.getbbox(txt_label)[0]
+            y_pos = image.size[1] * (1 - border) - font.getbbox(txt_label)[1]
         else:
             raise ValueError("invalid specification of text position")
         draw.text((x_pos, y_pos), txt_label, fill=(255, 255, 255, 180), font=font)
