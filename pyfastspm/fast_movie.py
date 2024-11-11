@@ -218,6 +218,8 @@ class FastMovie:
 
         """
 
+        y_points = np.int32(y_points)
+        x_points = np.int32(x_points)
         data = np.reshape(time_series, (num_images, y_points * 4, x_points))
 
         if channels == "udf":
@@ -725,8 +727,8 @@ class FastMovie:
                 "h5file is not an instance of h5py.File: did you open the HDF5 file?"
             )
 
-        x_points = self.h5file["data"].attrs["Scanner.X_Points"]
-        y_points = self.h5file["data"].attrs["Scanner.Y_Points"]
+        x_points = np.int32(self.h5file["data"].attrs["Scanner.X_Points"])
+        y_points = np.int32(self.h5file["data"].attrs["Scanner.Y_Points"])
         num_images = int(self.h5file["data"].shape[0] / (x_points * y_points * 4))
 
         return num_images
