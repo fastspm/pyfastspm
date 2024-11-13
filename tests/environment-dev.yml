@@ -21,7 +21,7 @@ dependencies:
   - pytest
   - pytest-sugar
   - nbmake
-  - build
+  - python-build
   - twine
   - pre-commit
   - git

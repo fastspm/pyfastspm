@@ -123,7 +123,7 @@ def get_contrast_limits(data, contrast=None):
     contrast = np.array(contrast) if contrast is not None else None
     if contrast is None:
         p1, p2 = int(data.min()), int(data.max())
-    elif np.issubclass_(contrast.dtype.type, float):
+    elif issubclass(contrast.dtype.type, float):
         if contrast.size == 1 and 0 <= contrast <= 1:
             limits = (100.0 * (1 - contrast) / 2, 100.0 * (1 - (1 - contrast) / 2))
         elif contrast.size == 2 and 0 <= contrast[0] <= 1 and 0 <= contrast[1] <= 1:
@@ -135,7 +135,7 @@ def get_contrast_limits(data, contrast=None):
         p1, p2 = np.percentile(data, (limits[0], limits[1]))
         log.debug("Auto-set contrast limits are {0:g} and {1:g}".format(p1, p2))
 
-    elif np.issubclass_(contrast.dtype.type, np.integer):
+    elif issubclass(contrast.dtype.type, np.integer):
         if contrast.size != 2:
             raise ValueError("'contrast' must be a sequence of two ints (or floats).")
         if contrast[0] >= contrast[1]:

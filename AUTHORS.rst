@@ -15,6 +15,7 @@ List of contributors in alphabetical order.
 * Daniel Tiemann
 * Jakob Filser
 * Karl Briegel
+* Matthias Krinninger
 * Mirco Panighel
 * Robert Spitzenpfeil
 
