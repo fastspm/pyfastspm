@@ -34,8 +34,8 @@ class Creep:
     def __init__(self, FastMovie_instance, index_to_linear=0.5, creep_mode="sin"):
         self.channels = FastMovie_instance.channels
         self.processing_log = FastMovie_instance.processing_log
-        self.number_xpixels = FastMovie_instance.metadata["Scanner.X_Points"]
-        self.number_ypixels = FastMovie_instance.metadata["Scanner.Y_Points"] * 2
+        self.number_xpixels = np.int32(FastMovie_instance.metadata["Scanner.X_Points"])
+        self.number_ypixels = np.int32(FastMovie_instance.metadata["Scanner.Y_Points"]) * 2
         if index_to_linear >= 1:
             index_to_linear = index_to_linear / self.number_ypixels
         self.rel_ind_raw = index_to_linear
