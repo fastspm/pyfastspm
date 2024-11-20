@@ -71,8 +71,8 @@ def mean_2d(fast_movie: FastMovie, pixel_width: int) -> None:
     """
     kernel_shape = (pixel_width, pixel_width)
     kernel = np.ones(kernel_shape) / (pixel_width * pixel_width)
-    for frame in fast_movie.data:
-        frame = convolve2d(frame, kernel, mode="same")
+    for i, frame in enumerate(fast_movie.data):
+        fast_movie.data[i] = convolve2d(frame, kernel, mode="same")
 
 
 def median_2d(fast_movie: FastMovie, pixel_width: int) -> None:
@@ -87,8 +87,8 @@ def median_2d(fast_movie: FastMovie, pixel_width: int) -> None:
         None: Modifies `FastMovie.data` in-place
     """
     size = (pixel_width, pixel_width)
-    for frame in fast_movie.data:
-        frame = median_filter(frame, size=size)
+    for i, frame in enumerate(fast_movie.data):
+        fast_movie.data[i] = median_filter(frame, size=size)
 
 
 def gaussian_2d(fast_movie: FastMovie, pixel_width: int) -> None:
@@ -101,5 +101,5 @@ def gaussian_2d(fast_movie: FastMovie, pixel_width: int) -> None:
     Returns:
         None: Modifies `FastMovie.data` in-place
     """
-    for frame in fast_movie.data:
-        frame = gaussian_filter(frame, pixel_width - 1, truncate=0.5)
+    for i, frame in enumerate(fast_movie.data):
+        fast_movie.data[i] = gaussian_filter(frame, pixel_width - 1, truncate=0.5)
