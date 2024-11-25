@@ -36,6 +36,7 @@ class FastMovie:
     Attributes:
         data: the FAST data as a 1darray or 2darray
         metadata: all the metadata in the .h5 file as a dictionary
+        filename: The pull path to the h5 file, as passed in the constructor
         default_color_map:
         default_contrast:
         full_image_range:
@@ -51,6 +52,8 @@ class FastMovie:
         # get file absolute path and base name for later use
         self._absolute_path = str(Path(file_name).resolve().parent)
         self._file_base_name = str(Path(file_name).stem)
+
+        self.filename = file_name
 
         # initialize data processing logger
         self._log_file = str(Path(file_name).with_suffix(".log"))
@@ -70,14 +73,14 @@ class FastMovie:
         # log pyfastspm version as a header
         self.processing_log.info("using pyfastspm version %s", __version__)
 
-        self.h5file = h5.File(file_name, mode="r")
-        log.info("file " + file_name + " successfully opened.")
+        # Load data and metadata from h5 file
+        with h5.File(file_name, mode="r") as f:
+            log.info("file " + file_name + " successfully opened.")
+            self.data = f["data"][()].astype(np.float32)  # just initialize self.data
+            self.metadata = dict(f["data"].attrs)
 
-        # load metadata from the HDF file
-        self.metadata = {}
-        for key in self.h5file["data"].attrs.keys():
-            self.metadata[key] = self.h5file["data"].attrs[key]
 
+        # Correct for misspelled keys in the h5 file
         try:
             self.metadata["Acquisition.X_Phase"] = self.metadata.pop(
                 "Acquisiton.X_Phase"
@@ -111,10 +114,6 @@ class FastMovie:
 
         log.info("number of images: %d", self.metadata["Acquisition.NumImages"])
 
-        self.data = self.h5file["data"][()].astype(
-            np.float32
-        )  # just initialize self.data
-
         # call this to set x_phase and y_phase
         self.reload_timeseries(x_phase=x_phase, y_phase=y_phase)
 
@@ -141,19 +140,16 @@ class FastMovie:
         self.dist_y = 1.0
 
     def close(self):
-        """Closes the h5file
+        """Deinitializes all logging handlers
 
         Returns: nothing
 
         """
-        filename = self.h5file.filename
-        self.h5file.close()
-        self.processing_log.info("h5 file closed.")
         for handler in self.processing_log.handlers:
             self.processing_log.removeHandler(handler)
             handler.flush()
             handler.close()
-        log.info("file " + filename + " succesfully closed.")
+        log.info("Loggings handlers succesfully closed.")
 
     def reload_timeseries(self, x_phase=None, y_phase=None):
         """Reloads the original timeseries from the h5file.
@@ -177,9 +173,10 @@ class FastMovie:
             self.y_phase = y_phase
 
         y_phase_roll = self.y_phase * self.metadata["Scanner.X_Points"] * 2
-        self.data = np.roll(
-            np.array(self.h5file["data"], dtype=np.float32), self.x_phase + y_phase_roll
-        )
+
+        with h5.File(self.filename, mode="r") as f:
+            raw_data = f["data"][()].astype(np.float32)
+            self.data = np.roll(raw_data, self.x_phase + y_phase_roll)
 
         self.mode = "timeseries"
         self.channels = "timeseries"
@@ -722,14 +719,18 @@ class FastMovie:
         Returns:
             int: the correct total number of images
         """
-        if not isinstance(self.h5file, h5.File):
-            raise Exception(
-                "h5file is not an instance of h5py.File: did you open the HDF5 file?"
-            )
+        # if not isinstance(self.h5file, h5.File):
+        #     raise Exception(
+        #         "h5file is not an instance of h5py.File: did you open the HDF5 file?"
+        #     )
+        #
+        # x_points = np.int32(self.h5file["data"].attrs["Scanner.X_Points"])
+        # y_points = np.int32(self.h5file["data"].attrs["Scanner.Y_Points"])
+        # num_images = int(self.h5file["data"].shape[0] / (x_points * y_points * 4))
 
-        x_points = np.int32(self.h5file["data"].attrs["Scanner.X_Points"])
-        y_points = np.int32(self.h5file["data"].attrs["Scanner.Y_Points"])
-        num_images = int(self.h5file["data"].shape[0] / (x_points * y_points * 4))
+        x_points = self.metadata["Scanner.X_Points"].astype(np.int32)
+        y_points = self.metadata["Scanner.Y_Points"].astype(np.int32)
+        num_images = int(self.data.shape[0] / (x_points * y_points * 4))
 
         return num_images
 
