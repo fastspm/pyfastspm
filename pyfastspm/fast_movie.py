@@ -1,6 +1,7 @@
 """The main FastMovie class that represents a FAST movie,
 with all the necessary attributes and methods."""
 
+import copy
 import logging
 from pathlib import Path
 
@@ -138,6 +139,9 @@ class FastMovie:
         # scaling correction
         self.dist_x = 1.0
         self.dist_y = 1.0
+
+    def clone(self):
+        return copy.deepcopy(self)
 
     def close(self):
         """Deinitializes all logging handlers
