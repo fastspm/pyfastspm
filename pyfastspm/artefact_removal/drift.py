@@ -106,8 +106,7 @@ class Drift:
             np.outer(np.hamming(self.img_height), np.hamming(self.img_width))
         )
         for i in range(self.n_frames):
-            imag = self.data[i, :, :]
-            imag = np.asarray(imag, dtype="float32")
+            imag = self.data[i, :, :].copy()
             imag /= imag.std()
             imag -= imag.mean()
             imag = hamm * imag
@@ -212,7 +211,8 @@ class Drift:
         buffx = int(np.round(np.abs(maxx) + np.abs(minx))) + 1
 
         corr_movie = np.zeros(
-            (self.n_frames, self.im_size + int(buffy), self.rescale_width + int(buffx))
+            (self.n_frames, self.im_size + int(buffy), self.rescale_width + int(buffx)),
+            dtype=np.float32,
         )
         for i in range(self.n_frames):
             shift1, shift2 = self.integrated_trans[:, i]
@@ -266,7 +266,8 @@ class Drift:
         buffx = int(np.round(np.abs(maxx) + np.abs(minx))) + 1
 
         corr_movie = np.zeros(
-            (self.n_frames, self.im_size - int(buffy), self.rescale_width - int(buffx))
+            (self.n_frames, self.im_size - int(buffy), self.rescale_width - int(buffx)),
+            dtype=np.float32,
         )
         for i in range(self.n_frames):
             shift1, shift2 = self.integrated_trans[:, -i]
