@@ -3,7 +3,6 @@ import logging
 from pyfastspm._version import version as __version__
 from pyfastspm._version import version_tuple as __version_tuple__
 
-from .artefact_removal.conv_mat import conv_mat
 from .artefact_removal.creep import Creep
 from .artefact_removal.drift import Drift
 from .artefact_removal.fft import (
@@ -14,6 +13,8 @@ from .artefact_removal.fft import (
     filter_noise,
     show_fft,
 )
+from .artefact_removal.filters import conv_mat, gaussian_2d, mean_2d, median_2d
+from .artefact_removal.image_correction import align_rows, fix_zero, level_plane
 from .artefact_removal.interpolate import interpolate
 
 # convenience imports

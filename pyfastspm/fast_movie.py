@@ -810,71 +810,82 @@ class FastMovie:
         return start_frame, end_frame
 
     def correct_phase(
-        self, index_frame_to_correlate, sigma_gauss=0, manual_x=0, manual_y=0
-    ):
+        self,
+        apply_auto_xphase: bool,
+        index_frame_to_correlate: int,
+        sigma_gauss: int = 0,
+        additional_x_phase: int = 0,
+        manual_y_phase: int = 0,
+    ) -> int:
         if self.mode != "movie":
             self.reshape_to_movie("udi")
 
         # -4 to disregard the upper and lower most two rows
-        if index_frame_to_correlate is None:
+        if apply_auto_xphase is False:
             xphase_autocorrection = 0
         else:
-            num_of_correlated_lines = (len(self.data[0, :, 0]) - 4) / 2
-            correlation_peak_values = np.zeros(int(num_of_correlated_lines))
-
-            frame_to_correlate = self.data[index_frame_to_correlate]
-
-            frame_to_correlate -= frame_to_correlate.mean()
-            frame_to_correlate /= frame_to_correlate.std()
-
-            create_hamming = np.outer(
-                np.ones(len(self.data[0, :, 0])), np.hamming(len(self.data[0, 0, :]))
+            xphase_autocorrection = self.get_x_phase_autocorrection(
+                index_frame_to_correlate, sigma_gauss
             )
-            frame_to_correlate = frame_to_correlate * create_hamming
-
-            if sigma_gauss != 0:
-                frame_to_correlate[::2] = gaussian_filter(
-                    frame_to_correlate[::2], sigma_gauss
-                )
-                frame_to_correlate[1::2] = gaussian_filter(
-                    frame_to_correlate[1::2], sigma_gauss
-                )
-
-            for i in range(2, len(self.data[0, :, 0]) - 2, 2):
-                # create foreward different mean - like finite difference approx in numerical differentiation
-                correlational_data_forewards = corr(
-                    frame_to_correlate[i, :], frame_to_correlate[i + 1, :]
-                )
-                correlational_data_backwards = corr(
-                    frame_to_correlate[i, :], frame_to_correlate[i - 1, :]
-                )
-                max_val = (
-                    np.argmax(correlational_data_forewards)
-                    + np.argmax(correlational_data_backwards)
-                ) / 2
-                correlation_peak_values[int(i / 2 - 1)] = max_val
-
-            mean_correlation_peak_value = np.mean(correlation_peak_values)
-            raw_xphase_correction = (
-                mean_correlation_peak_value - (len(self.data[0, 0, :]) - 1)
-            ) / 2  # -1 to get correct index
-            xphase_autocorrection = int(np.round(raw_xphase_correction))
-
-            log.info(
-                "Automatic xphase detection yielded a raw value of {} which was rounded to {}".format(
-                    round(raw_xphase_correction, 3), xphase_autocorrection
-                )
-            )
-
-        self.reload_timeseries(
-            y_phase=manual_y,
-            x_phase=self.metadata["Acquisition.X_Phase"]
-            + xphase_autocorrection
-            + manual_x,
-        )
 
         x_phase = (
-            +xphase_autocorrection + self.metadata["Acquisition.X_Phase"] + manual_x
+            +xphase_autocorrection
+            + self.metadata["Acquisition.X_Phase"]
+            + additional_x_phase
         )
 
+        self.reload_timeseries(y_phase=manual_y_phase, x_phase=x_phase)
+
         return x_phase
+
+    def get_x_phase_autocorrection(
+        self, index_frame_to_correlate: int, sigma_gauss: int
+    ) -> int:
+        num_of_correlated_lines = (len(self.data[0, :, 0]) - 4) / 2
+        correlation_peak_values = np.zeros(int(num_of_correlated_lines))
+
+        frame_to_correlate = self.data[index_frame_to_correlate]
+
+        frame_to_correlate -= frame_to_correlate.mean()
+        frame_to_correlate /= frame_to_correlate.std()
+
+        create_hamming = np.outer(
+            np.ones(len(self.data[0, :, 0])), np.hamming(len(self.data[0, 0, :]))
+        )
+        frame_to_correlate = frame_to_correlate * create_hamming
+
+        if sigma_gauss != 0:
+            frame_to_correlate[::2] = gaussian_filter(
+                frame_to_correlate[::2], sigma_gauss
+            )
+            frame_to_correlate[1::2] = gaussian_filter(
+                frame_to_correlate[1::2], sigma_gauss
+            )
+
+        for i in range(2, len(self.data[0, :, 0]) - 2, 2):
+            # create foreward different mean - like finite difference approx in numerical differentiation
+            correlational_data_forewards = corr(
+                frame_to_correlate[i, :], frame_to_correlate[i + 1, :]
+            )
+            correlational_data_backwards = corr(
+                frame_to_correlate[i, :], frame_to_correlate[i - 1, :]
+            )
+            max_val = (
+                np.argmax(correlational_data_forewards)
+                + np.argmax(correlational_data_backwards)
+            ) / 2
+            correlation_peak_values[int(i / 2 - 1)] = max_val
+
+        mean_correlation_peak_value = np.mean(correlation_peak_values)
+        raw_xphase_correction = (
+            mean_correlation_peak_value - (len(self.data[0, 0, :]) - 1)
+        ) / 2  # -1 to get correct index
+        xphase_autocorrection = int(np.round(raw_xphase_correction))
+
+        log.info(
+            "Automatic xphase detection yielded a raw value of {} which was rounded to {}".format(
+                round(raw_xphase_correction, 3), xphase_autocorrection
+            )
+        )
+
+        return xphase_autocorrection
