@@ -182,12 +182,11 @@ class Drift:
             )
             for i in range(np.shape(self.transformations)[1]):
                 fileobject.write(
-                    "{0:>14}   {1:>12}  {2:>12}  {3:>12} \n".format(
-                        round(self.integrated_trans[0, i], 5),
-                        round(self.integrated_trans[1, i], 5),
-                        round(self.transformations[0, i], 5),
-                        round(self.transformations[1, i]),
-                        5,
+                    "{0:>14.5f}   {1:>12.5f}  {2:>12.5f}  {3:>12.5f} \n".format(
+                        self.integrated_trans[0, i],
+                        self.integrated_trans[1, i],
+                        self.transformations[0, i],
+                        self.transformations[1, i],
                     )
                 )
 
