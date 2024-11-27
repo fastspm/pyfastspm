@@ -29,7 +29,7 @@ class Drift:
         self, FastmovieInstance, stepsize=40, corrspeed=1, show_path=False, boxcar=True
     ):
         self.data = FastmovieInstance.data
-        self.file = FastmovieInstance.h5file.filename.replace(".h5", ".drift.txt")
+        self.file = FastmovieInstance.filename.replace(".h5", ".drift.txt")
         self.processing_log = FastmovieInstance.processing_log
         self.channels = FastmovieInstance.channels
         self.stepsize = stepsize
