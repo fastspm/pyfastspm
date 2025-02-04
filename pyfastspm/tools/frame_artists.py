@@ -47,7 +47,7 @@ def label_image(rgb_image, text=None, font_size=0.05, border=0.01):
             x_pos = image.size[0] * border
             y_pos = image.size[1] * border
         elif text[txt_label] == "top-right":
-            x_pos = image.size[0] * (1 - border) - font.getbbox(txt_label)[0]
+            x_pos = image.size[0] * (1 - border) - font.getlength(txt_label)
             y_pos = image.size[1] * border
         elif text[txt_label] == "center":
             x_pos = 0.5 * (image.size[0] - font.getbbox(txt_label)[0])
