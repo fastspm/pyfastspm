@@ -80,7 +80,6 @@ class FastMovie:
             self.data = f["data"][()].astype(np.float32)  # just initialize self.data
             self.metadata = dict(f["data"].attrs)
 
-
         # Correct for misspelled keys in the h5 file
         try:
             self.metadata["Acquisition.X_Phase"] = self.metadata.pop(
@@ -176,7 +175,9 @@ class FastMovie:
         else:
             self.y_phase = y_phase
 
-        y_phase_roll = self.y_phase * self.metadata["Scanner.X_Points"] * 2
+        y_phase_roll = (
+            self.y_phase * self.metadata["Scanner.X_Points"].astype(np.int32) * 2
+        )
 
         with h5.File(self.filename, mode="r") as f:
             raw_data = f["data"][()].astype(np.float32)
