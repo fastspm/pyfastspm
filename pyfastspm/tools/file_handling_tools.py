@@ -106,7 +106,7 @@ def params_to_html(ft):
         "Date": "ExperimentInfo.Time",
         "Software version": "ExperimentInfo.SoftwareVersion",
     }
-    params = "Filename: {}\n".format(ft.h5file.filename)
+    params = "Filename: {}\n".format(ft.filename)
     params += "<br>FPS: {:.4g}\n".format(ft.fps)
     for k, v in attrs.items():
         if isinstance(ft.metadata[v], np.float64):

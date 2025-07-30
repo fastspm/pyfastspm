@@ -1,6 +1,7 @@
 """The main FastMovie class that represents a FAST movie,
 with all the necessary attributes and methods."""
 
+import copy
 import logging
 from pathlib import Path
 
@@ -36,6 +37,7 @@ class FastMovie:
     Attributes:
         data: the FAST data as a 1darray or 2darray
         metadata: all the metadata in the .h5 file as a dictionary
+        filename: The pull path to the h5 file, as passed in the constructor
         default_color_map:
         default_contrast:
         full_image_range:
@@ -51,6 +53,8 @@ class FastMovie:
         # get file absolute path and base name for later use
         self._absolute_path = str(Path(file_name).resolve().parent)
         self._file_base_name = str(Path(file_name).stem)
+
+        self.filename = file_name
 
         # initialize data processing logger
         self._log_file = str(Path(file_name).with_suffix(".log"))
@@ -70,14 +74,13 @@ class FastMovie:
         # log pyfastspm version as a header
         self.processing_log.info("using pyfastspm version %s", __version__)
 
-        self.h5file = h5.File(file_name, mode="r")
-        log.info("file " + file_name + " successfully opened.")
+        # Load data and metadata from h5 file
+        with h5.File(file_name, mode="r") as f:
+            log.info("file " + file_name + " successfully opened.")
+            self.data = f["data"][()].astype(np.float32)  # just initialize self.data
+            self.metadata = dict(f["data"].attrs)
 
-        # load metadata from the HDF file
-        self.metadata = {}
-        for key in self.h5file["data"].attrs.keys():
-            self.metadata[key] = self.h5file["data"].attrs[key]
-
+        # Correct for misspelled keys in the h5 file
         try:
             self.metadata["Acquisition.X_Phase"] = self.metadata.pop(
                 "Acquisiton.X_Phase"
@@ -111,10 +114,6 @@ class FastMovie:
 
         log.info("number of images: %d", self.metadata["Acquisition.NumImages"])
 
-        self.data = self.h5file["data"][()].astype(
-            np.float32
-        )  # just initialize self.data
-
         # call this to set x_phase and y_phase
         self.reload_timeseries(x_phase=x_phase, y_phase=y_phase)
 
@@ -140,20 +139,20 @@ class FastMovie:
         self.dist_x = 1.0
         self.dist_y = 1.0
 
+    def clone(self):
+        return copy.deepcopy(self)
+
     def close(self):
-        """Closes the h5file
+        """Deinitializes all logging handlers
 
         Returns: nothing
 
         """
-        filename = self.h5file.filename
-        self.h5file.close()
-        self.processing_log.info("h5 file closed.")
         for handler in self.processing_log.handlers:
             self.processing_log.removeHandler(handler)
             handler.flush()
             handler.close()
-        log.info("file " + filename + " succesfully closed.")
+        log.info("Loggings handlers succesfully closed.")
 
     def reload_timeseries(self, x_phase=None, y_phase=None):
         """Reloads the original timeseries from the h5file.
@@ -176,10 +175,13 @@ class FastMovie:
         else:
             self.y_phase = y_phase
 
-        y_phase_roll = self.y_phase * self.metadata["Scanner.X_Points"] * 2
-        self.data = np.roll(
-            np.array(self.h5file["data"], dtype=np.float32), self.x_phase + y_phase_roll
+        y_phase_roll = (
+            self.y_phase * self.metadata["Scanner.X_Points"].astype(np.int32) * 2
         )
+
+        with h5.File(self.filename, mode="r") as f:
+            raw_data = f["data"][()].astype(np.float32)
+            self.data = np.roll(raw_data, self.x_phase + y_phase_roll)
 
         self.mode = "timeseries"
         self.channels = "timeseries"
@@ -722,14 +724,18 @@ class FastMovie:
         Returns:
             int: the correct total number of images
         """
-        if not isinstance(self.h5file, h5.File):
-            raise Exception(
-                "h5file is not an instance of h5py.File: did you open the HDF5 file?"
-            )
+        # if not isinstance(self.h5file, h5.File):
+        #     raise Exception(
+        #         "h5file is not an instance of h5py.File: did you open the HDF5 file?"
+        #     )
+        #
+        # x_points = np.int32(self.h5file["data"].attrs["Scanner.X_Points"])
+        # y_points = np.int32(self.h5file["data"].attrs["Scanner.Y_Points"])
+        # num_images = int(self.h5file["data"].shape[0] / (x_points * y_points * 4))
 
-        x_points = np.int32(self.h5file["data"].attrs["Scanner.X_Points"])
-        y_points = np.int32(self.h5file["data"].attrs["Scanner.Y_Points"])
-        num_images = int(self.h5file["data"].shape[0] / (x_points * y_points * 4))
+        x_points = self.metadata["Scanner.X_Points"].astype(np.int32)
+        y_points = self.metadata["Scanner.Y_Points"].astype(np.int32)
+        num_images = int(self.data.shape[0] / (x_points * y_points * 4))
 
         return num_images
 
@@ -805,71 +811,82 @@ class FastMovie:
         return start_frame, end_frame
 
     def correct_phase(
-        self, index_frame_to_correlate, sigma_gauss=0, manual_x=0, manual_y=0
-    ):
+        self,
+        apply_auto_xphase: bool,
+        index_frame_to_correlate: int,
+        sigma_gauss: int = 0,
+        additional_x_phase: int = 0,
+        manual_y_phase: int = 0,
+    ) -> int:
         if self.mode != "movie":
             self.reshape_to_movie("udi")
 
         # -4 to disregard the upper and lower most two rows
-        if index_frame_to_correlate is None:
+        if apply_auto_xphase is False:
             xphase_autocorrection = 0
         else:
-            num_of_correlated_lines = (len(self.data[0, :, 0]) - 4) / 2
-            correlation_peak_values = np.zeros(int(num_of_correlated_lines))
-
-            frame_to_correlate = self.data[index_frame_to_correlate]
-
-            frame_to_correlate -= frame_to_correlate.mean()
-            frame_to_correlate /= frame_to_correlate.std()
-
-            create_hamming = np.outer(
-                np.ones(len(self.data[0, :, 0])), np.hamming(len(self.data[0, 0, :]))
+            xphase_autocorrection = self.get_x_phase_autocorrection(
+                index_frame_to_correlate, sigma_gauss
             )
-            frame_to_correlate = frame_to_correlate * create_hamming
-
-            if sigma_gauss != 0:
-                frame_to_correlate[::2] = gaussian_filter(
-                    frame_to_correlate[::2], sigma_gauss
-                )
-                frame_to_correlate[1::2] = gaussian_filter(
-                    frame_to_correlate[1::2], sigma_gauss
-                )
-
-            for i in range(2, len(self.data[0, :, 0]) - 2, 2):
-                # create foreward different mean - like finite difference approx in numerical differentiation
-                correlational_data_forewards = corr(
-                    frame_to_correlate[i, :], frame_to_correlate[i + 1, :]
-                )
-                correlational_data_backwards = corr(
-                    frame_to_correlate[i, :], frame_to_correlate[i - 1, :]
-                )
-                max_val = (
-                    np.argmax(correlational_data_forewards)
-                    + np.argmax(correlational_data_backwards)
-                ) / 2
-                correlation_peak_values[int(i / 2 - 1)] = max_val
-
-            mean_correlation_peak_value = np.mean(correlation_peak_values)
-            raw_xphase_correction = (
-                mean_correlation_peak_value - (len(self.data[0, 0, :]) - 1)
-            ) / 2  # -1 to get correct index
-            xphase_autocorrection = int(np.round(raw_xphase_correction))
-
-            log.info(
-                "Automatic xphase detection yielded a raw value of {} which was rounded to {}".format(
-                    round(raw_xphase_correction, 3), xphase_autocorrection
-                )
-            )
-
-        self.reload_timeseries(
-            y_phase=manual_y,
-            x_phase=self.metadata["Acquisition.X_Phase"]
-            + xphase_autocorrection
-            + manual_x,
-        )
 
         x_phase = (
-            +xphase_autocorrection + self.metadata["Acquisition.X_Phase"] + manual_x
+            +xphase_autocorrection
+            + self.metadata["Acquisition.X_Phase"]
+            + additional_x_phase
         )
 
+        self.reload_timeseries(y_phase=manual_y_phase, x_phase=x_phase)
+
         return x_phase
+
+    def get_x_phase_autocorrection(
+        self, index_frame_to_correlate: int, sigma_gauss: int
+    ) -> int:
+        num_of_correlated_lines = (len(self.data[0, :, 0]) - 4) / 2
+        correlation_peak_values = np.zeros(int(num_of_correlated_lines))
+
+        frame_to_correlate = self.data[index_frame_to_correlate]
+
+        frame_to_correlate -= frame_to_correlate.mean()
+        frame_to_correlate /= frame_to_correlate.std()
+
+        create_hamming = np.outer(
+            np.ones(len(self.data[0, :, 0])), np.hamming(len(self.data[0, 0, :]))
+        )
+        frame_to_correlate = frame_to_correlate * create_hamming
+
+        if sigma_gauss != 0:
+            frame_to_correlate[::2] = gaussian_filter(
+                frame_to_correlate[::2], sigma_gauss
+            )
+            frame_to_correlate[1::2] = gaussian_filter(
+                frame_to_correlate[1::2], sigma_gauss
+            )
+
+        for i in range(2, len(self.data[0, :, 0]) - 2, 2):
+            # create foreward different mean - like finite difference approx in numerical differentiation
+            correlational_data_forewards = corr(
+                frame_to_correlate[i, :], frame_to_correlate[i + 1, :]
+            )
+            correlational_data_backwards = corr(
+                frame_to_correlate[i, :], frame_to_correlate[i - 1, :]
+            )
+            max_val = (
+                np.argmax(correlational_data_forewards)
+                + np.argmax(correlational_data_backwards)
+            ) / 2
+            correlation_peak_values[int(i / 2 - 1)] = max_val
+
+        mean_correlation_peak_value = np.mean(correlation_peak_values)
+        raw_xphase_correction = (
+            mean_correlation_peak_value - (len(self.data[0, 0, :]) - 1)
+        ) / 2  # -1 to get correct index
+        xphase_autocorrection = int(np.round(raw_xphase_correction))
+
+        log.info(
+            "Automatic xphase detection yielded a raw value of {} which was rounded to {}".format(
+                round(raw_xphase_correction, 3), xphase_autocorrection
+            )
+        )
+
+        return xphase_autocorrection

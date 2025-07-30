@@ -157,7 +157,7 @@ class FFMPEG_VideoWriter:
     def write_frame(self, img_array):
         """Writes one frame in the file."""
         try:
-            self.proc.stdin.write(img_array.tostring())
+            self.proc.stdin.write(img_array.tobytes())
         except IOError as err:
             ffmpeg_error = str(self.proc.communicate()[1])
             error = str(err) + (

@@ -29,7 +29,7 @@ class Drift:
         self, FastmovieInstance, stepsize=40, corrspeed=1, show_path=False, boxcar=True
     ):
         self.data = FastmovieInstance.data
-        self.file = FastmovieInstance.h5file.filename.replace(".h5", ".drift.txt")
+        self.file = FastmovieInstance.filename.replace(".h5", ".drift.txt")
         self.processing_log = FastmovieInstance.processing_log
         self.channels = FastmovieInstance.channels
         self.stepsize = stepsize
@@ -106,8 +106,7 @@ class Drift:
             np.outer(np.hamming(self.img_height), np.hamming(self.img_width))
         )
         for i in range(self.n_frames):
-            imag = self.data[i, :, :]
-            imag = np.asarray(imag, dtype="float32")
+            imag = self.data[i, :, :].copy()
             imag /= imag.std()
             imag -= imag.mean()
             imag = hamm * imag
@@ -182,12 +181,11 @@ class Drift:
             )
             for i in range(np.shape(self.transformations)[1]):
                 fileobject.write(
-                    "{0:>14}   {1:>12}  {2:>12}  {3:>12} \n".format(
-                        round(self.integrated_trans[0, i], 5),
-                        round(self.integrated_trans[1, i], 5),
-                        round(self.transformations[0, i], 5),
-                        round(self.transformations[1, i]),
-                        5,
+                    "{0:>14.5f}   {1:>12.5f}  {2:>12.5f}  {3:>12.5f} \n".format(
+                        self.integrated_trans[0, i],
+                        self.integrated_trans[1, i],
+                        self.transformations[0, i],
+                        self.transformations[1, i],
                     )
                 )
 
@@ -212,7 +210,8 @@ class Drift:
         buffx = int(np.round(np.abs(maxx) + np.abs(minx))) + 1
 
         corr_movie = np.zeros(
-            (self.n_frames, self.im_size + int(buffy), self.rescale_width + int(buffx))
+            (self.n_frames, self.im_size + int(buffy), self.rescale_width + int(buffx)),
+            dtype=np.float32,
         )
         for i in range(self.n_frames):
             shift1, shift2 = self.integrated_trans[:, i]
@@ -266,7 +265,8 @@ class Drift:
         buffx = int(np.round(np.abs(maxx) + np.abs(minx))) + 1
 
         corr_movie = np.zeros(
-            (self.n_frames, self.im_size - int(buffy), self.rescale_width - int(buffx))
+            (self.n_frames, self.im_size - int(buffy), self.rescale_width - int(buffx)),
+            dtype=np.float32,
         )
         for i in range(self.n_frames):
             shift1, shift2 = self.integrated_trans[:, -i]
