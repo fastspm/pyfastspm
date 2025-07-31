@@ -4,10 +4,6 @@ description = "A python package for loading, processing and exporting scanning p
 license = { text = "MIT" }
 authors = [{ name = "Carlo Dri", email = "carlo.dri@gmail.com" }]
 classifiers = [
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -18,7 +14,7 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Natural Language :: English",
 ]
-requires-python = ">=3.6"
+requires-python = ">=3.10"
 dependencies = [
     "h5py",
     "matplotlib",
