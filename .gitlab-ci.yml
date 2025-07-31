@@ -9,9 +9,9 @@ stages:
   - release
 
 build_docker_image_job:
-  image: docker:20.10.16
+  image: docker:28.3.3
   services:
-    - docker:20.10.16-dind
+    - docker:28.3.3-dind
   stage: build_docker_image
   before_script:
     - ""
