@@ -2,7 +2,7 @@ name: pyfastspm-dev
 channels:
   - conda-forge
 dependencies:
-  - python
+  - python ~=3.10
   - setuptools_scm
   - packaging
   - matplotlib
