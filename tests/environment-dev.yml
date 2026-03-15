@@ -4,6 +4,7 @@ channels:
 dependencies:
   - python ~=3.10
   - setuptools_scm
+  - setuptools
   - packaging
   - matplotlib
   - h5py
