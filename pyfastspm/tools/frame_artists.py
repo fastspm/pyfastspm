@@ -9,7 +9,7 @@ import matplotlib.cm as cm
 import matplotlib.colors as mplc
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
-from pkg_resources import resource_filename
+from importlib import resources
 from scipy.ndimage import zoom
 
 log = logging.getLogger(__name__)
@@ -38,8 +38,11 @@ def label_image(rgb_image, text=None, font_size=0.05, border=0.01):
     image = Image.fromarray(rgb_image).convert("RGBA")
     txt = Image.new("RGBA", image.size, (255, 255, 255, 0))
     draw = ImageDraw.Draw(txt)
+    font_path = resources.files("pyfastspm.tools.resources.fonts").joinpath(
+        "OpenSans-Semibold.ttf"
+    )
     font = ImageFont.truetype(
-        resource_filename("pyfastspm.tools.resources.fonts", "OpenSans-Semibold.ttf"),
+        str(font_path),
         int(image.size[0] * font_size),
     )
     for txt_label in text.keys():
