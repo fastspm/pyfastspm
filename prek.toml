@@ -1,0 +1,15 @@
+[[repos]]
+repo = "builtin"
+hooks = [
+  { id = "trailing-whitespace" },
+  { id = "end-of-file-fixer" },
+  { id = "check-yaml" },
+]
+
+[[repos]]
+repo = "local"
+hooks = [
+  { id = "ruff", name = "ruff", language = "system", entry = "pixi run ruff check --fix", types = ["python"] },
+  { id = "ruff-format", name = "ruff format", language = "system", entry = "pixi run ruff format", types = ["python"] },
+  { id = "ty-check", name = "ty check", language = "system", entry = "pixi run ty check", types = ["python"], pass_filenames = false },
+]
