@@ -1,64 +1,55 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
 [project]
 name = "pyfastspm"
-description = "A python package for loading, processing and exporting scanning probe microscopy movies acquired with the FAST unit."
-license = { text = "MIT" }
-authors = [{ name = "Carlo Dri", email = "carlo.dri@gmail.com" }]
-classifiers = [
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "License :: OSI Approved :: MIT License",
-    "License :: OSI Approved :: Apache Software License",
-    "Operating System :: OS Independent",
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Science/Research",
-    "Natural Language :: English",
-]
+dynamic = ["version"]
+description = "Python package for loading, processing, and exporting SPM movies acquired with the FAST module."
+readme = "README.md"
 requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Carlo A. Pignedoli", email = "carlo.pignedoli@empa.ch"},
+    {name = "Daniele Passerone", email = "daniele.passerone@empa.ch"}
+]
 dependencies = [
     "h5py",
-    "matplotlib",
     "numpy",
-    "packaging",
-    "pillow",
-    "scikit-image",
     "scipy",
-    "setuptools-scm",
+    "scikit-image",
+    "pillow",
+    "matplotlib",
+    "loguru",
     "tqdm",
 ]
-dynamic = ["version", "readme"]
 
-[project.optional-dependencies]
-mkl_fft = ["mkl_fft"]
+[tool.hatch.version]
+source = "vcs"
 
-[project.urls]
-Homepage = "https://gitlab.com/fastspm/pyfastspm"
-Issues = "https://gitlab.com/fastspm/pyfastspm/-/issues"
+[tool.hatch.build.hooks.vcs]
+version-file = "pyfastspm/_version.py"
 
-[tool.setuptools.dynamic]
-readme = { file = ["README.md", "CHANGELOG.md"] }
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
 
-[tool.setuptools.packages.find]
-exclude = ["tests"]
+[tool.pixi.dependencies]
+ffmpeg = "*"
 
-[tool.setuptools.package-data]
-"*" = ["*.ttf"]
+[tool.pixi.environments]
+default = { solve-group = "default" }
+dev = { features = ["dev"], solve-group = "default" }
 
-[tool.setuptools_scm]
-write_to = "pyfastspm/_version.py"
-version_scheme = "python-simplified-semver"
-local_scheme = "no-local-version"
+[tool.pixi.feature.dev.dependencies]
+ruff = "*"
+ty = "*"
+pytest = "*"
+pytest-cov = "*"
+nbmake = "*"
 
-[tool.flake8]
-ignore = ["E266", "E501", "W503"]
-extend-ignore = ["E203"]
-max-line-length = 88
-max-complexity = 18
-select = ["B", "C", "E", "F", "W", "T4", "B9"]
-
-[tool.isort]
-profile = "black"
-
-[build-system]
-requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
-build-backend = "setuptools.build_meta"
+[tool.pixi.tasks]
+lint = "ruff check ."
+format = "ruff format ."
+typecheck = "ty check"
+test = "pytest"
