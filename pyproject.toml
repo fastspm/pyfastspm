@@ -36,6 +36,8 @@ matplotlib = "*"
 loguru = "*"
 tqdm = "*"
 ffmpeg = "*"
+
+[tool.pixi.feature.dev.dependencies]
 ruff = "*"
 ty = "*"
 pytest = "*"
@@ -48,6 +50,7 @@ pyfastspm = { path = ".", editable = true }
 
 [tool.pixi.environments]
 default = { solve-group = "default" }
+dev = { features = ["dev"], solve-group = "default" }
 
 [tool.pixi.tasks]
 lint = "ruff check ."
