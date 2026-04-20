@@ -1,6 +1,6 @@
 """Exact interpolation for interlacing"""
 
-import logging
+from loguru import logger
 
 import numpy as np
 from scipy.sparse import csr_matrix, lil_matrix
@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 from ..fast_movie import FastMovie
 
-log = logging.getLogger(__name__)
+
 
 
 def _output_y_grid(ny, nx):

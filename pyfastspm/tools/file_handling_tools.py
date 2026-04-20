@@ -1,7 +1,7 @@
 """Helper functions to implement batch operations on multiple FAST files."""
 
 import base64
-import logging
+from loguru import logger
 from io import BytesIO
 from pathlib import Path
 
@@ -13,7 +13,7 @@ from tqdm import tqdm
 from ..fast_movie import FastMovie
 from .frame_artists import gray_to_rgb
 
-log = logging.getLogger(__name__)
+
 
 
 def preview_folder(folder="."):
@@ -60,7 +60,7 @@ def preview_folder(folder="."):
     html_file.write(html_string)
     html_file.close()
 
-    log.info("Successfully exported to " + filepath)
+    logger.info("Successfully exported to " + filepath)
 
 
 def file_to_html(file):

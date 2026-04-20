@@ -4,15 +4,11 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyfastspm"
+authors = [{ name = "Carlo Dri", email = "carlo.dri@gmail.com" }]
+description = "A python package for loading, processing and exporting scanning probe microscopy movies acquired with the FAST unit."
 dynamic = ["version"]
-description = "Python package for loading, processing, and exporting SPM movies acquired with the FAST module."
-readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
-authors = [
-    {name = "Carlo A. Pignedoli", email = "carlo.pignedoli@empa.ch"},
-    {name = "Daniele Passerone", email = "daniele.passerone@empa.ch"}
-]
+license = { text = "MIT" }
 dependencies = [
     "h5py",
     "numpy",
@@ -23,6 +19,10 @@ dependencies = [
     "loguru",
     "tqdm",
 ]
+
+[project.urls]
+Homepage = "https://gitlab.com/fastspm/pyfastspm"
+Issues = "https://gitlab.com/fastspm/pyfastspm/-/issues"
 
 [tool.hatch.version]
 source = "vcs"
@@ -36,17 +36,18 @@ platforms = ["linux-64"]
 
 [tool.pixi.dependencies]
 ffmpeg = "*"
-
-[tool.pixi.environments]
-default = { solve-group = "default" }
-dev = { features = ["dev"], solve-group = "default" }
-
-[tool.pixi.feature.dev.dependencies]
 ruff = "*"
 ty = "*"
 pytest = "*"
 pytest-cov = "*"
 nbmake = "*"
+hatch = "*"
+
+[tool.pixi.pypi-dependencies]
+pyfastspm = { path = ".", editable = true }
+
+[tool.pixi.environments]
+default = { solve-group = "default" }
 
 [tool.pixi.tasks]
 lint = "ruff check ."

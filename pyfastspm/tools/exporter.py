@@ -4,7 +4,7 @@ It contains a class for movie export with ffmpeg
 as well as tools for single FAST frame export.
 """
 
-import logging
+from loguru import logger
 import os
 import subprocess as sp
 from subprocess import DEVNULL
@@ -12,8 +12,6 @@ from subprocess import DEVNULL
 from PIL import Image
 
 from .frame_artists import gray_to_rgb, label_image
-
-log = logging.getLogger(__name__)
 
 
 def try_cmd(cmd):
@@ -39,7 +37,7 @@ else:
     FFMPEG_BIN = "ffmpeg"
 
 if not try_cmd(FFMPEG_BIN)[0]:
-    log.warning("ffmpeg is unavailable on your system: movie export will NOT work")
+    logger.warning("ffmpeg is unavailable on your system: movie export will NOT work")
 
 
 class FFMPEG_VideoWriter:
@@ -137,7 +135,7 @@ class FFMPEG_VideoWriter:
         if (codec == "libx264") and (size[0] % 2 == 0) and (size[1] % 2 == 0):
             cmd.extend(["-pix_fmt", "yuv420p"])
         else:
-            log.warning(
+            logger.warning(
                 "movies exported with odd sizes ({0:g}x{1:g}) "
                 "will not be played by QuickTime. "
                 "In case you need such player, please chose a different scaling. "
@@ -247,7 +245,7 @@ def image_writer(
         rgb_data = label_image(rgb_data, text=text, font_size=0.04, border=0.01)
     img = Image.fromarray(rgb_data).convert("RGB")
     img.save(file_name)
-    log.info("successfully written " + file_name)
+    logger.info("successfully written " + file_name)
 
 
 def gsf_writer(data, file_name, metadata=None):
@@ -289,4 +287,4 @@ def gsf_writer(data, file_name, metadata=None):
     gsf_file.write(b"\x00" * (4 - len(metadata_string) % 4))
     gsf_file.write(data.tobytes(None))
     gsf_file.close()
-    log.info("Successfully wrote " + file_name + ".gsf")
+    logger.info("Successfully wrote " + file_name + ".gsf")

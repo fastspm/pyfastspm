@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 import traceback
 from copy import copy
 
@@ -10,7 +10,7 @@ from scipy.signal import correlate as corr
 
 # from ..fast_movie import FastMovie
 
-log = logging.getLogger(__name__)
+
 
 
 class Creep:

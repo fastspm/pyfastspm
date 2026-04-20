@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 
 import numpy as np
 from numpy._typing import ArrayLike
@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 from ..fast_movie import FastMovie
 
-log = logging.getLogger(__name__)
+
 
 
 def conv_mat(

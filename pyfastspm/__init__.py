@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 
 from pyfastspm._version import version as __version__
 from pyfastspm._version import version_tuple as __version_tuple__
@@ -27,17 +27,5 @@ from .tools.file_handling_tools import (
 )
 from .tracking.pixel_trace import pixel_trace
 
-
-class NullHandler(logging.Handler):
-    def emit(self, record):
-        pass
-
-
-logging.getLogger(__name__).addHandler(NullHandler())
-__FORMAT = "%(levelname)s[%(module)s.%(funcName)s]:  %(message)s"
-logging.basicConfig(level=logging.INFO, format=__FORMAT)
-logging.raiseExceptions = True
-
-logging.info("Loaded pyfastspm v" + __version__)
-
-del NullHandler
+logger.disable("pyfastspm")
+logger.info(f"Loaded pyfastspm v{__version__}")

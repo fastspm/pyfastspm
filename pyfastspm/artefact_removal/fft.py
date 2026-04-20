@@ -1,6 +1,6 @@
 """1D filters to be performed on the timeseries before it is reshaped to a movie."""
 
-import logging
+from loguru import logger
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,11 +10,11 @@ from scipy import interpolate
 try:
     import mkl_fft
 except:
-    print("mkl_fft import failed, will default to np.fft")
+    logger.warning("mkl_fft import failed, will default to np.fft")
 
 from ..fast_movie import FastMovie
 
-log = logging.getLogger(__name__)
+
 
 
 def convert_to_spectrum(fast_movie: FastMovie):
@@ -38,9 +38,9 @@ def convert_to_spectrum(fast_movie: FastMovie):
             raise ValueError("FastMovie object has to be in timeseries mode.")
 
     try:
-        print("start fft")
+        logger.info("start fft")
         fast_movie.data = mkl_fft.rfft(fast_movie.data)
-        print("fft done")
+        logger.info("fft done")
     except (ValueError, NameError):
         # length = np.size(fast_movie.data)
         # if np.log2(length) != int(np.log2(length)):
@@ -50,9 +50,9 @@ def convert_to_spectrum(fast_movie: FastMovie):
         #    print(np.log2(np.size(fast_movie.data)))
         #    fast_movie.bufferlenth = np.size(buffer)
         fast_movie.processing_log.warning("falling back to numpy rfft.")
-        log.warning("falling back to numpy rfft.")
+        logger.warning("falling back to numpy rfft.")
         fast_movie.data = np.fft.rfft(fast_movie.data)
-        print("fft done")
+        logger.info("fft done")
 
     fast_movie.mode = "spectrum"
 
@@ -80,14 +80,14 @@ def convert_to_timeseries(fast_movie: FastMovie):
             raise ValueError("FastMovie object has to be in spectrum mode.")
 
     try:
-        print("start ifft")
+        logger.info("start ifft")
         fast_movie.data = mkl_fft.irfft(fast_movie.data)
-        print("ifft done")
+        logger.info("ifft done")
     except (ValueError, TypeError, NameError):
         fast_movie.processing_log.warning("falling back to numpy irfft.")
-        log.warning("falling back to numpy irfft.")
+        logger.warning("falling back to numpy irfft.")
         fast_movie.data = np.fft.irfft(fast_movie.data)
-        print("ifft done")
+        logger.info("ifft done")
         # if fast_movie.data is not None:
         #    fast_movie.data = fast_movie.data[:-fast_movie.bufferlenth]
 
@@ -255,7 +255,7 @@ def filter_noise(fast_movie: FastMovie, thresh, sigma, freqs=None):
 
     fast_movie.data *= freq_filter
 
-    log.warning(
+    logger.warning(
         "what this does is essentially time averaging! Comparison with "
         "a version without noise filtering is highly recommended."
     )
@@ -369,7 +369,7 @@ def filter_movie(
 
     ### Display part of the spectrum
     if display_spectrum:
-        print(
+        logger.info(
             "Displaying spectrum. Single peaks of disproportionately high intensity might be measurement artifacts."
         )
         show_fft(ft, fft_display_range)

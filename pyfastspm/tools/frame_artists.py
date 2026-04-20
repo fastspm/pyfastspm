@@ -3,7 +3,7 @@ Contains general tools to prepare and change to optics
 of frames such as colormapping and drawing into frames.
 """
 
-import logging
+from loguru import logger
 
 import matplotlib.cm as cm
 import matplotlib.colors as mplc
@@ -11,9 +11,6 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from importlib import resources
 from scipy.ndimage import zoom
-
-log = logging.getLogger(__name__)
-
 
 def label_image(rgb_image, text=None, font_size=0.05, border=0.01):
     """
@@ -136,7 +133,7 @@ def get_contrast_limits(data, contrast=None):
                 "'contrast' must be a float, a tuple of two floats between 0 and 1, or a tuple of two ints."
             )
         p1, p2 = np.percentile(data, (limits[0], limits[1]))
-        log.debug("Auto-set contrast limits are {0:g} and {1:g}".format(p1, p2))
+        logger.debug("Auto-set contrast limits are {0:g} and {1:g}".format(p1, p2))
 
     elif issubclass(contrast.dtype.type, np.integer):
         if contrast.size != 2:
@@ -146,7 +143,7 @@ def get_contrast_limits(data, contrast=None):
                 "Lower bound of contrast must be smaller than the higher bound."
             )
         p1, p2 = contrast[0], contrast[1]
-        log.debug("Manual contrast limits are {0:g} and {1:g}".format(p1, p2))
+        logger.debug("Manual contrast limits are {0:g} and {1:g}".format(p1, p2))
 
     else:
         raise ValueError(

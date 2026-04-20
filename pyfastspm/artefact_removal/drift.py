@@ -4,6 +4,7 @@ OpenCV. Parts of the code are inspired by:
 learnopencv.com/video-stabilisation-using-point-feature-matching-in-opencv
 """
 
+from loguru import logger
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.ndimage import convolve
@@ -66,7 +67,7 @@ class Drift:
         Returns:
             self.correct: 2D array containing x and y coordinate of the drift
         """
-        print("start drift correction")
+        self.processing_log.info("start drift correction")
         self.processing_log.info("Drift correction mode: {}".format(mode))
         self.processing_log.info(
             "Drift calculated with stepsize: {}".format(self.stepsize)
@@ -90,11 +91,11 @@ class Drift:
             return self._adjust_movie_buffered(), self.integrated_trans
         if mode == "common":
             return self._adjust_movie_common(), self.integrated_trans
-        print("Mode not known. Available modes are full and common.")
+        self.processing_log.info("Mode not known. Available modes are full and common.")
         inp = input("What mode do you want to use. press n to abort: ")
         if inp == "n":
             return self.data
-        print('continuing with mode "' + inp + '"')
+        self.processing_log.info('continuing with mode "' + inp + '"')
         return self.correct(mode=inp)
 
     def _get_drift(self):
@@ -243,7 +244,7 @@ class Drift:
                 order=3,
             )
 
-        print("drift correction finished")
+        logger.info("drift correction finished")
         return corr_movie
 
     def _adjust_movie_common(self):
@@ -300,7 +301,7 @@ class Drift:
                 + shift2,
             ]
 
-        print("drift correction finished")
+        logger.info("drift correction finished")
         return corr_movie
 
 
