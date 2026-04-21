@@ -29,3 +29,31 @@ from .tracking.pixel_trace import pixel_trace
 
 logger.disable("pyfastspm")
 logger.info(f"Loaded pyfastspm v{__version__}")
+
+
+__all__ = [
+    "__version__",
+    "__version_tuple__",
+    "Creep",
+    "Drift",
+    "convert_to_spectrum",
+    "convert_to_timeseries",
+    "filter_freq",
+    "filter_movie",
+    "filter_noise",
+    "show_fft",
+    "conv_mat",
+    "gaussian_2d",
+    "mean_2d",
+    "median_2d",
+    "align_rows",
+    "fix_zero",
+    "level_plane",
+    "interpolate",
+    "FastMovie",
+    "error_catcher",
+    "h5_files_in_folder",
+    "preview_folder",
+    "unprocessed_in_folder",
+    "pixel_trace",
+]
