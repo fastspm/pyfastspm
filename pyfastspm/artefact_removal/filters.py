@@ -1,4 +1,3 @@
-from loguru import logger
 
 import numpy as np
 from numpy._typing import ArrayLike
@@ -7,8 +6,6 @@ from scipy.signal import convolve2d
 from tqdm import tqdm
 
 from ..fast_movie import FastMovie
-
-
 
 
 def conv_mat(

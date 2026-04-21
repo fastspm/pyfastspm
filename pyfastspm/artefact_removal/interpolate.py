@@ -1,6 +1,5 @@
 """Exact interpolation for interlacing"""
 
-from loguru import logger
 
 import numpy as np
 from scipy.sparse import csr_matrix, lil_matrix
@@ -8,8 +7,6 @@ from scipy.spatial import Delaunay
 from tqdm import tqdm
 
 from ..fast_movie import FastMovie
-
-
 
 
 def _output_y_grid(ny, nx):
@@ -245,12 +242,12 @@ def interpolate(
                     fast_movie.data[frame].flatten()
                 ).reshape(ny, nx)
 
-        if "u" and not "d" in fast_movie.channels:
+        if "u" and "d" not in fast_movie.channels:
             fast_movie.data[frame] = interpolation_matrix_up.dot(
                 fast_movie.data[frame].flatten()
             ).reshape(ny, nx)
 
-        if "d" and not "u" in fast_movie.channels:
+        if "d" and "u" not in fast_movie.channels:
             fast_movie.data[frame] = interpolation_matrix_down.dot(
                 fast_movie.data[frame].flatten()
             ).reshape(ny, nx)

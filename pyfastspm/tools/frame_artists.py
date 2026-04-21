@@ -12,6 +12,7 @@ from PIL import Image, ImageDraw, ImageFont
 from importlib import resources
 from scipy.ndimage import zoom
 
+
 def label_image(rgb_image, text=None, font_size=0.05, border=0.01):
     """
 

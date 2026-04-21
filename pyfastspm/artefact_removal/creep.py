@@ -1,16 +1,12 @@
-from loguru import logger
 import traceback
 from copy import copy
 
-import matplotlib.pyplot as plt
 import numpy as np
-from scipy.interpolate import Rbf, splev, splrep
-from scipy.optimize import LinearConstraint, NonlinearConstraint, curve_fit, minimize
+from scipy.interpolate import splev, splrep
+from scipy.optimize import curve_fit
 from scipy.signal import correlate as corr
 
 # from ..fast_movie import FastMovie
-
-
 
 
 class Creep:
@@ -445,9 +441,7 @@ class Creep:
                 w1 = Bezier_up[0, j] - yii
                 y_up[ind, ::fb][ii] = (
                     w0 * Bezier_up[1, j] + w1 * Bezier_up[1, j - 1]
-                ) / (
-                    w0 + w1
-                )  # linear interpolation between two Bezier points
+                ) / (w0 + w1)  # linear interpolation between two Bezier points
 
         P3_down = np.array([max(y[ind_down, :]), max(y[ind_down, :])])
         P12_down = np.array([y[0, 0] + pixels, y[0, 0] + pixels])

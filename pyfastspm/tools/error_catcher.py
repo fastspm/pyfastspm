@@ -1,5 +1,4 @@
 from loguru import logger
-from ..fast_movie import FastMovie
 
 
 def error_catcher(

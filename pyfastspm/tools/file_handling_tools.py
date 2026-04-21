@@ -14,8 +14,6 @@ from ..fast_movie import FastMovie
 from .frame_artists import gray_to_rgb
 
 
-
-
 def preview_folder(folder="."):
     """Returns an HTML file with the preview of the movies in the given folder
 

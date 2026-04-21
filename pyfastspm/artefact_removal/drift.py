@@ -225,15 +225,11 @@ class Drift:
             # possibly there is a +1 in the i for the frame to be taken.
             corr_movie[
                 i,
-                int(abs(miny))
-                + 1
-                + shift1 : int(abs(miny))
+                int(abs(miny)) + 1 + shift1 : int(abs(miny))
                 + 1
                 + self.im_size
                 + shift1,
-                int(abs(minx))
-                + 1
-                + shift2 : int(abs(minx))
+                int(abs(minx)) + 1 + shift2 : int(abs(minx))
                 + 1
                 + self.rescale_width
                 + shift2,
@@ -285,16 +281,12 @@ class Drift:
                 anti_aliasing=True,
                 order=4,
             )[
-                int(abs(miny))
-                + 1
-                + shift1 : int(abs(miny))
+                int(abs(miny)) + 1 + shift1 : int(abs(miny))
                 + 1
                 + self.im_size
                 - int(buffy)
                 + shift1,
-                int(abs(minx))
-                + 1
-                + shift2 : int(abs(minx))
+                int(abs(minx)) + 1 + shift2 : int(abs(minx))
                 + 1
                 + self.rescale_width
                 - int(buffx)

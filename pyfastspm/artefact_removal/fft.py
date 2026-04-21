@@ -15,8 +15,6 @@ except:
 from ..fast_movie import FastMovie
 
 
-
-
 def convert_to_spectrum(fast_movie: FastMovie):
     """Converts a FastMovie object from 'timeseries' mode to 'spectrum' mode using fft.
 

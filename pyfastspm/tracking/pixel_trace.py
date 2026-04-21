@@ -1,10 +1,7 @@
-﻿from loguru import logger
+from loguru import logger
 
-import h5py
 import numpy as np
 from scipy.ndimage import map_coordinates
-
-
 
 
 def pixel_trace(fast_movie, points, interpolation_order=0, mask=None):

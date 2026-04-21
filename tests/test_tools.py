@@ -1,14 +1,13 @@
 """
 Tests for `pyfastspm.tools` module.
 """
-from pathlib import Path
+
 
 import numpy as np
 import pytest
 
 from pyfastspm.tools.file_handling_tools import (
     h5_files_in_folder,
-    unprocessed_in_folder,
 )
 from pyfastspm.tools.frame_artists import get_contrast_limits
 
