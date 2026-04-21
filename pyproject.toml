@@ -62,17 +62,12 @@ test = "pytest -vx"
 
 [tool.ruff]
 line-length = 88
-target-version = "py310"
 exclude = ["*.ipynb", "docs"]
 
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore:Parsing dates involving a day of month without a year specified is ambiguous:DeprecationWarning"
 ]
-
-[tool.ty.environment]
-python-version = "3.10"
-python-platform = "linux"
 
 [tool.ty.src]
 include = ["pyfastspm", "tests"]
