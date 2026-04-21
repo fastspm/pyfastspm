@@ -9,7 +9,7 @@ from scipy import interpolate
 
 try:
     import mkl_fft
-except:
+except ImportError:
     logger.warning("mkl_fft import failed, will default to np.fft")
 
 from ..fast_movie import FastMovie
