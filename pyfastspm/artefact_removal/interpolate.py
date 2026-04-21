@@ -176,7 +176,7 @@ def interpolate(
         x, t2 = _output_x_grid(2 * ny, nx)  #
 
     # correct creep in y direction
-    if grid == None:
+    if grid is None:
         y_up = y
         y_down = y[:, ::-1]
     else:

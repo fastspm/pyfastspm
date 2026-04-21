@@ -314,7 +314,7 @@ class Creep:
         Returns:
             2-Tuple of creep corrected up and down grids.
         """
-        if known_params == None:
+        if known_params is None:
             print("starting creep correction")
             for frame_number_index in range(len(frames)):
                 if frames[frame_number_index] % 2 != 0:
@@ -571,7 +571,7 @@ class Creep:
 
         """
 
-        if known_input == None:
+        if known_input is None:
             print("start bezier creep correction")
 
             self.processing_log.info(
