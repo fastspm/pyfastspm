@@ -37,6 +37,7 @@ loguru = ">=0.7.3,<0.8"
 tqdm = ">=4.67.3,<5"
 ffmpeg = ">=8.0.1,<9"
 mkl_fft = ">=2.1.2,<3"
+gsffile = ">=0.5.4,<0.6"
 
 [tool.pixi.feature.dev.dependencies]
 ruff = ">=0.15.11,<0.16"
@@ -55,19 +56,15 @@ default = []
 dev = ["dev"]
 
 [tool.pixi.tasks]
-lint = "ruff check --fix ."
-format = "ruff format ."
-typecheck = "ty check"
-test = "pytest -vx"
+lint = { cmd = "ruff check --fix .", default-environment = "dev" }
+format = { cmd = "ruff format .", default-environment = "dev" }
+typecheck = { cmd = "ty check", default-environment = "dev" }
+test = { cmd = "pytest -vx", default-environment = "dev" }
+test_notebook = { cmd = " pytest -vx --nbmake examples/pyfastspm_converter.ipynb", default-environment = "dev" }
 
 [tool.ruff]
 line-length = 88
 exclude = ["*.ipynb", "docs"]
-
-[tool.pytest.ini_options]
-filterwarnings = [
-    "ignore:Parsing dates involving a day of month without a year specified is ambiguous:DeprecationWarning"
-]
 
 [tool.ty.src]
 include = ["pyfastspm", "tests"]

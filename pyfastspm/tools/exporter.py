@@ -10,6 +10,7 @@ import subprocess as sp
 from subprocess import DEVNULL
 
 from PIL import Image
+from gsffile import write_gsf
 
 from .frame_artists import gray_to_rgb, label_image
 
@@ -259,32 +260,19 @@ def gsf_writer(data, file_name, metadata=None):
     Returns:
         nothing
     """
+    import numpy as np
 
-    x_res = data.shape[1]
-    y_res = data.shape[0]
-
-    data = data.astype("float32")
-
+    # Strip extension if present
     if file_name.rpartition(".")[1] == ".":
         file_name = file_name[0 : file_name.rfind(".")]
 
-    gsf_file = open(file_name + ".gsf", "wb")
+    # Convert to float32
+    data = np.asarray(data, dtype="float32")
 
-    # prepare the metadata
+    # Prepare metadata (empty dict if None)
     if metadata is None:
         metadata = {}
-    metadata_string = ""
-    metadata_string += "Gwyddion Simple Field 1.0" + "\n"
-    metadata_string += "XRes = {0:d}".format(x_res) + "\n"
-    metadata_string += "YRes = {0:d}".format(y_res) + "\n"
-    for i in metadata.keys():
-        try:
-            metadata_string += i + " = " + "{0:G}".format(metadata[i]) + "\n"
-        except:
-            metadata_string += i + " = " + str(metadata[i]) + "\n"
 
-    gsf_file.write(metadata_string.encode("utf-8", "surrogatepass"))
-    gsf_file.write(b"\x00" * (4 - len(metadata_string) % 4))
-    gsf_file.write(data.tobytes(None))
-    gsf_file.close()
+    # Write GSF file using gsffile library
+    write_gsf(file_name + ".gsf", data, metadata)
     logger.info("Successfully wrote " + file_name + ".gsf")
