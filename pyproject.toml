@@ -36,6 +36,7 @@ matplotlib = ">=3.10.8,<4"
 loguru = ">=0.7.3,<0.8"
 tqdm = ">=4.67.3,<5"
 ffmpeg = ">=8.0.1,<9"
+mkl_fft = ">=2.1.2,<3"
 
 [tool.pixi.feature.dev.dependencies]
 ruff = ">=0.15.11,<0.16"
@@ -62,6 +63,7 @@ test = "pytest -vx"
 [tool.ruff]
 line-length = 88
 target-version = "py310"
+exclude = ["*.ipynb", "docs"]
 
 [tool.pytest.ini_options]
 filterwarnings = [
