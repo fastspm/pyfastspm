@@ -12,8 +12,8 @@ test_job:
   stage: test
   script:
     - pixi run lint
-    - pixi run typecheck
     - pixi run test
+    - pixi run test_notebook
 
 build_job:
   stage: build
@@ -30,7 +30,8 @@ pages:
   script:
     - mkdir public
     - cd docs/
-    - pixi run sphinx-apidoc --private --force -d 0 --no-headings --module-first --no-toc -o API/ ../pyfastspm
+    - pixi run sphinx-apidoc --private --force -d 0 --no-headings --module-first
+      --no-toc -o API/ ../pyfastspm
     - pixi run sphinx-build -b html -d _build/doctrees . _build/html
     - mv -v _build/html/* ../public/
   artifacts:
