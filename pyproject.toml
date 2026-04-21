@@ -44,6 +44,7 @@ pytest = ">=9.0.3,<10"
 pytest-cov = ">=7.1.0,<8"
 nbmake = ">=1.5.5,<2"
 hatch = ">=1.16.5,<2"
+pytest-sugar = ">=1.1.1,<2"
 
 [tool.pixi.pypi-dependencies]
 pyfastspm = { path = ".", editable = true }
@@ -56,7 +57,7 @@ dev = ["dev"]
 lint = "ruff check --fix ."
 format = "ruff format ."
 typecheck = "ty check"
-test = "pytest"
+test = "pytest -vx"
 
 [tool.ruff]
 line-length = 88
