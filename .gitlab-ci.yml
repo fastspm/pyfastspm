@@ -1,7 +1,13 @@
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
+
 default:
   image: ghcr.io/prefix-dev/pixi:latest
   before_script:
-    - pixi global install git
+    - pixi install
 
 stages:
   - test
