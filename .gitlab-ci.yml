@@ -7,7 +7,7 @@ workflow:
 default:
   image: ghcr.io/prefix-dev/pixi:latest
   before_script:
-    - pixi install
+    - pixi global install git
 
 stages:
   - test
