@@ -4,10 +4,22 @@ workflow:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_TAG
 
+variables:
+  PIXI_CACHE_DIR: "$CI_PROJECT_DIR/.pixi-cache"
+  PIXI_FROZEN: "true"
+
 default:
   image: ghcr.io/prefix-dev/pixi:latest
   before_script:
     - pixi global install git
+
+cache:
+  key:
+    files:
+      - pixi.lock
+  paths:
+    - .pixi/
+    - .pixi-cache/
 
 stages:
   - test
