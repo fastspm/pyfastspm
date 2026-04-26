@@ -49,6 +49,8 @@ hatch = ">=1.16.5,<2"
 pytest-sugar = ">=1.1.1,<2"
 sphinx = ">=8.1.3,<9"
 furo = ">=2024.8.6,<2025"
+rattler-build = ">=0.23.0"
+python-build = ">=1.2.2"
 
 [tool.pixi.pypi-dependencies]
 pyfastspm = { path = ".", editable = true }
@@ -64,6 +66,9 @@ typecheck = { cmd = "ty check", default-environment = "dev" }
 test = { cmd = "pytest -vx", default-environment = "dev" }
 test_notebook = { cmd = "pytest -vx --nbmake examples/pyfastspm_converter.ipynb", default-environment = "dev" }
 docs = { cmd = "cd docs && make html", default-environment = "dev" }
+build_conda = { cmd = "rattler-build build --recipe recipe.yaml", default-environment = "dev" }
+build_pypi = { cmd = "hatch build", default-environment = "dev" }
+publish_pypi = { cmd = "hatch publish", default-environment = "dev", depends-on = ["build_pypi"] }
 
 [tool.ruff]
 line-length = 88
