@@ -16,6 +16,9 @@ stages:
 
 test_job:
   stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
     - pixi run lint
     - pixi run test
@@ -23,6 +26,10 @@ test_job:
 
 build_job:
   stage: build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
   script:
     - pixi run build_pypi
   artifacts:
