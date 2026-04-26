@@ -74,4 +74,4 @@ examples/*
 
 # Pixi
 .pixi/
-pixi.lock
+.pixi-cache/
