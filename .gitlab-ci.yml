@@ -18,10 +18,17 @@ test_job:
 build_job:
   stage: build
   script:
-    - pixi run python -m build
+    - pixi run build_pypi
   artifacts:
     paths:
       - dist/
+
+release_pypi:
+  stage: release
+  only:
+    - tags
+  script:
+    - pixi run publish_pypi
 
 pages:
   stage: release
