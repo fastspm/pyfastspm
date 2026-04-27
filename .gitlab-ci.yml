@@ -18,7 +18,6 @@ cache:
     files:
       - pixi.lock
   paths:
-    - .pixi/
     - .pixi-cache/
 
 stages:
