@@ -518,7 +518,7 @@ class Creep:
                 down: data of the column in the down frame
                 Bezier_points: number of grid points for the numeric creep function
                 w: additional weighting of the lines at the upper and lower boundary;
-                    weight function is w*y**2/max(y)**2 + 1
+                weight function is w*y**2/max(y)**2 + 1
                 pixels: pixel number for creep correction
             shape1, shape2, shape3: shape parameters for creep correction
 

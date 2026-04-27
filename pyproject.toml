@@ -65,6 +65,9 @@ format = { cmd = "ruff format .", default-environment = "dev" }
 typecheck = { cmd = "ty check", default-environment = "dev" }
 test = { cmd = "pytest -vx", default-environment = "dev" }
 test_notebook = { cmd = "pytest -vx --nbmake examples/pyfastspm_converter.ipynb", default-environment = "dev" }
+sphinx-apidoc = { cmd = "sphinx-apidoc", default-environment = "dev" }
+sphinx-build = { cmd = "sphinx-build", default-environment = "dev" }
+docs-build = { cmd = "cd docs && sphinx-apidoc --private --force -d 0 --no-headings --module-first --no-toc -o API/ ../pyfastspm && sphinx-build -b html -d _build/doctrees . _build/html", default-environment = "dev" }
 docs = { cmd = "cd docs && make html", default-environment = "dev" }
 build_conda = { cmd = "rattler-build build --recipe recipe.yaml", default-environment = "dev" }
 build_pypi = { cmd = "hatch build", default-environment = "dev" }

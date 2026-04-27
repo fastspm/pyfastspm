@@ -57,12 +57,9 @@ pages:
   needs:
     - job: build_job
   script:
+    - pixi run docs-build
     - mkdir public
-    - cd docs/
-    - pixi run sphinx-apidoc --private --force -d 0 --no-headings --module-first
-      --no-toc -o API/ ../pyfastspm
-    - pixi run sphinx-build -b html -d _build/doctrees . _build/html
-    - mv -v _build/html/* ../public/
+    - mv -v docs/_build/html/* public/
   artifacts:
     paths:
       - public
