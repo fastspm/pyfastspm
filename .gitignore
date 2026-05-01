@@ -71,3 +71,7 @@ examples/*
 
 # log files
 *.log
+
+# Pixi
+.pixi/
+.pixi-cache/

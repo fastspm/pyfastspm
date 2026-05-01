@@ -2,11 +2,11 @@
 with all the necessary attributes and methods."""
 
 import copy
-import logging
 from pathlib import Path
 
 import h5py as h5
 import numpy as np
+from loguru import logger
 from packaging.version import parse
 from scipy.ndimage import gaussian_filter
 from scipy.signal import correlate as corr
@@ -15,8 +15,6 @@ from tqdm import tqdm
 from pyfastspm import __version__
 from pyfastspm.tools.exporter import FFMPEG_VideoWriter, gsf_writer, image_writer
 from pyfastspm.tools.frame_artists import get_contrast_limits, gray_to_rgb, label_image
-
-log = logging.getLogger(__name__)
 
 MOVIE_CHANNEL_DESCRIPTORS = ("uf", "ub", "df", "db", "udf", "udb", "ui", "di", "udi")
 
@@ -58,25 +56,23 @@ class FastMovie:
 
         # initialize data processing logger
         self._log_file = str(Path(file_name).with_suffix(".log"))
-        self.processing_log = logging.getLogger(file_name)
-        log_formatter = logging.Formatter(
-            "%(levelname)1.1s[%(asctime)s - %(module)s.%(funcName)s]:  %(message)s"
-        )
-
         if log_processing:
-            file_handler = logging.FileHandler(filename=self._log_file, mode="w")
+            self._handler_id = logger.add(
+                self._log_file,
+                mode="w",
+                format="{level:1.1s}[{time:YYYY-MM-DD HH:mm:ss} - {module}.{function}]: {message}",
+                filter=lambda record: record["extra"].get("file_name") == file_name,
+            )
         else:
-            file_handler = logging.NullHandler()
-        self.processing_log.addHandler(file_handler)
-        file_handler.setFormatter(log_formatter)
-        self.processing_log.propagate = False
+            self._handler_id = None
+        self.processing_log = logger.bind(file_name=file_name)
 
         # log pyfastspm version as a header
-        self.processing_log.info("using pyfastspm version %s", __version__)
+        self.processing_log.info(f"using pyfastspm version {__version__}")
 
         # Load data and metadata from h5 file
         with h5.File(file_name, mode="r") as f:
-            log.info("file " + file_name + " successfully opened.")
+            logger.info(f"file {file_name} successfully opened.")
             self.data = f["data"][()].astype(np.float32)  # just initialize self.data
             self.metadata = dict(f["data"].attrs)
 
@@ -104,7 +100,7 @@ class FastMovie:
         self.num_images = self.true_num_images
         self.num_frames = self.true_num_images * 4
         # if self.expected_num_images != self.true_num_images:
-        #     log.warning(
+        #     logger.warning(
         #         "true number of images differs from Acquisition.NumImages by %d",
         #         np.abs(self.expected_num_images - self.true_num_images),
         #     )
@@ -112,7 +108,7 @@ class FastMovie:
         del self.true_num_images
         del self.expected_num_images
 
-        log.info("number of images: %d", self.metadata["Acquisition.NumImages"])
+        logger.info("number of images: %d", self.metadata["Acquisition.NumImages"])
 
         # call this to set x_phase and y_phase
         self.reload_timeseries(x_phase=x_phase, y_phase=y_phase)
@@ -143,16 +139,11 @@ class FastMovie:
         return copy.deepcopy(self)
 
     def close(self):
-        """Deinitializes all logging handlers
-
-        Returns: nothing
-
-        """
-        for handler in self.processing_log.handlers:
-            self.processing_log.removeHandler(handler)
-            handler.flush()
-            handler.close()
-        log.info("Loggings handlers succesfully closed.")
+        """Deinitializes the logging handler for this movie instance"""
+        if self._handler_id is not None:
+            logger.remove(self._handler_id)
+            self._handler_id = None
+        logger.info("Logging handler successfully closed.")
 
     def reload_timeseries(self, x_phase=None, y_phase=None):
         """Reloads the original timeseries from the h5file.
@@ -187,7 +178,7 @@ class FastMovie:
         self.channels = "timeseries"
         self.channel_list = ("timeseries",)
         self.fps = None
-        log.info(
+        logger.info(
             "loaded timeseries (x_phase = %d, y_phase = %d)", self.x_phase, self.y_phase
         )
         self.processing_log.info(
@@ -195,7 +186,7 @@ class FastMovie:
         )
         if self.metadata["ExperimentInfo.FileFormatVersion"] != "":
             if parse(self.metadata["ExperimentInfo.FileFormatVersion"]) < parse("1.0"):
-                log.warning(
+                logger.warning(
                     "file format versions before 1.0 have inconsistent "
                     "x and y phase definitions. Please double-check that "
                     "the phase values are indeed the ones you want."
@@ -286,7 +277,7 @@ class FastMovie:
                 + channels
                 + " is an unsupported combination of channels in the mask"
             )
-        log.info("Reshaped timeseries to movie extracting channels " + channels)
+        logger.info("Reshaped timeseries to movie extracting channels " + channels)
         return data
 
     def reshape_to_movie(self, channels="udf"):
@@ -369,7 +360,7 @@ class FastMovie:
             logarithmize = False
 
         if logarithmize:
-            log.warning("logarithmize not yet implemented!")
+            logger.warning("logarithmize not yet implemented!")
             # TODO(): TO BE IMPLEMENTED!
 
             return self.data[self._get_frame_index(image, channel), :, :]
@@ -444,7 +435,7 @@ class FastMovie:
                 + self.channels
                 + "' movie"
             )
-        log.info("exporting channel: " + channel)
+        logger.info("exporting channel: " + channel)
 
         if images is None:
             images = self.full_image_range
@@ -463,14 +454,14 @@ class FastMovie:
                 scaling = (scaling, scaling)
 
         if auto_label and file_format == "gsf":
-            log.warning("cannot label frames exported in gsf format")
+            logger.warning("cannot label frames exported in gsf format")
 
         if file_format not in ["gsf", "png", "jpg", "bmp"]:
             raise ValueError("'" + file_format + "' is an unsupported file format")
         image_range = np.array(images, ndmin=1)
 
         if average and image_range.shape[0] == 1:
-            log.warning(
+            logger.warning(
                 "frame averaging was requested but a single frame was specified: "
                 "I will turn off averaging and continue."
             )
@@ -478,17 +469,17 @@ class FastMovie:
 
         # set some defaults
         if average:
-            log.info("exporting average of images: " + str(images))
+            logger.info("exporting average of images: " + str(images))
         else:
-            log.info("exporting image(s): " + str(images))
+            logger.info("exporting image(s): " + str(images))
 
         if file_format.lower() != "gsf":
             if color_map is None:
                 color_map = self.default_color_map
-            log.info("using color_map: " + color_map)
+            logger.info("using color_map: " + color_map)
             if contrast is None:
                 contrast = self.default_contrast
-                log.info("image contrast cut between " + str(contrast))
+                logger.info("image contrast cut between " + str(contrast))
 
         if output_folder is None:
             output_folder = self._absolute_path
@@ -633,23 +624,23 @@ class FastMovie:
             if not self._is_valid_image_range(image_range, chan):
                 raise ValueError("invalid image range specification")
 
-        log.info("exporting image(s): " + str(image_range))
+        logger.info("exporting image(s): " + str(image_range))
 
         if color_map is None:
             color_map = self.default_color_map
-        log.info("using color map: " + color_map)
+        logger.info("using color map: " + color_map)
 
         contrast = get_contrast_limits(
             self.data[slice(*self._image_to_frame_range(image_range)), :, :],
             contrast=contrast,
         )
-        log.info("movie contrast cut between " + str(contrast))
+        logger.info("movie contrast cut between " + str(contrast))
 
         if output_folder is None:
             output_folder = self._absolute_path
 
         extension = ".mp4"
-        log.info("using default MPEG4 output container")
+        logger.info("using default MPEG4 output container")
         file_name = (
             self._file_base_name
             + "_"
@@ -660,7 +651,7 @@ class FastMovie:
             + self.channels
             + extension
         )
-        log.info("output file: " + file_name)
+        logger.info("output file: " + file_name)
         file_name_with_path = str(Path(output_folder, file_name))
 
         # round the size to the closest even number to avoid issues with h264 codecs
@@ -671,7 +662,7 @@ class FastMovie:
         )
 
         scaling = (size_y / self.data.shape[1], size_x / self.data.shape[2])
-        log.info("effective movie scaling: " + str(np.round(scaling, 3)))
+        logger.info("effective movie scaling: " + str(np.round(scaling, 3)))
 
         progress_bar = tqdm(
             list(self.iter_frames(image_range)), desc="Video export", unit="frames"
@@ -883,7 +874,7 @@ class FastMovie:
         ) / 2  # -1 to get correct index
         xphase_autocorrection = int(np.round(raw_xphase_correction))
 
-        log.info(
+        logger.info(
             "Automatic xphase detection yielded a raw value of {} which was rounded to {}".format(
                 round(raw_xphase_correction, 3), xphase_autocorrection
             )

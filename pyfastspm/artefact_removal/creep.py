@@ -1,16 +1,12 @@
-import logging
 import traceback
 from copy import copy
 
-import matplotlib.pyplot as plt
 import numpy as np
-from scipy.interpolate import Rbf, splev, splrep
-from scipy.optimize import LinearConstraint, NonlinearConstraint, curve_fit, minimize
+from scipy.interpolate import splev, splrep
+from scipy.optimize import curve_fit
 from scipy.signal import correlate as corr
 
 # from ..fast_movie import FastMovie
-
-log = logging.getLogger(__name__)
 
 
 class Creep:
@@ -318,7 +314,7 @@ class Creep:
         Returns:
             2-Tuple of creep corrected up and down grids.
         """
-        if known_params == None:
+        if known_params is None:
             print("starting creep correction")
             for frame_number_index in range(len(frames)):
                 if frames[frame_number_index] % 2 != 0:
@@ -445,9 +441,7 @@ class Creep:
                 w1 = Bezier_up[0, j] - yii
                 y_up[ind, ::fb][ii] = (
                     w0 * Bezier_up[1, j] + w1 * Bezier_up[1, j - 1]
-                ) / (
-                    w0 + w1
-                )  # linear interpolation between two Bezier points
+                ) / (w0 + w1)  # linear interpolation between two Bezier points
 
         P3_down = np.array([max(y[ind_down, :]), max(y[ind_down, :])])
         P12_down = np.array([y[0, 0] + pixels, y[0, 0] + pixels])
@@ -524,7 +518,7 @@ class Creep:
                 down: data of the column in the down frame
                 Bezier_points: number of grid points for the numeric creep function
                 w: additional weighting of the lines at the upper and lower boundary;
-                    weight function is w*y**2/max(y)**2 + 1
+                weight function is w*y**2/max(y)**2 + 1
                 pixels: pixel number for creep correction
             shape1, shape2, shape3: shape parameters for creep correction
 
@@ -577,7 +571,7 @@ class Creep:
 
         """
 
-        if known_input == None:
+        if known_input is None:
             print("start bezier creep correction")
 
             self.processing_log.info(

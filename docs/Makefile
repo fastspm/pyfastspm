@@ -50,7 +50,7 @@ clean:
 	rm -rf $(BUILDDIR)/*
 
 html:
-	sphinx-apidoc --private --force -d 2 --no-toc -o API/ ../pyfastspm
+	sphinx-apidoc --private --force -d 0 --no-headings --module-first --no-toc -o API/ ../pyfastspm
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."

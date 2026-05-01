@@ -1,10 +1,7 @@
-﻿import logging
+from loguru import logger
 
-import h5py
 import numpy as np
 from scipy.ndimage import map_coordinates
-
-log = logging.getLogger(__name__)
 
 
 def pixel_trace(fast_movie, points, interpolation_order=0, mask=None):
@@ -47,7 +44,7 @@ def pixel_trace(fast_movie, points, interpolation_order=0, mask=None):
         start_frame = 0
         end_frame = fast_movie.data.shape[0] - 1
         points = {0: points[key_frame_list[0]]}
-        print(points)
+        logger.debug(points)
     else:
         start_frame = key_frame_list[0]
         end_frame = key_frame_list[-1]

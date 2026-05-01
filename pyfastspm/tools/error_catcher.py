@@ -1,4 +1,4 @@
-from ..fast_movie import FastMovie
+from loguru import logger
 
 
 def error_catcher(
@@ -28,7 +28,7 @@ def error_catcher(
     if export_frames:
         if "ud" in frame_export_channel:
             frame_export_channel = frame_export_channel[-2:]
-            print(
+            logger.warning(
                 "Warning: frame_export_channel should not be 'ud<>'. Using {} instead.".format(
                     frame_export_channel
                 )
@@ -36,11 +36,11 @@ def error_catcher(
         for c in frame_export_channel:
             if c not in export_channels:
                 frame_export_channel = export_channels[-2:]
-                print(
-                    "Warning: frame_export_channel is not a subset of export_channels.\n",
+                logger.warning(
+                    "Warning: frame_export_channel is not a subset of export_channels. "
                     "frame_export_channel automatically set to {}.".format(
                         frame_export_channel
-                    ),
+                    )
                 )
                 break
 
@@ -51,16 +51,16 @@ def error_catcher(
                     frame_export_images[0] < image_range[0]
                     or frame_export_images[1] > image_range[1]
                 ):
-                    print(
-                        "Warning: At least one image in frame_export_images is not in 'image_range'. Some exported ",
-                        "frames will be raw data!",
+                    logger.warning(
+                        "Warning: At least one image in frame_export_images is not in 'image_range'. "
+                        "Some exported frames will be raw data!"
                     )
             else:
                 if (
                     frame_export_images < image_range[0]
                     or frame_export_images > image_range[1]
                 ):
-                    print(
+                    logger.warning(
                         "Warning: frame_export_images is not in 'image_range'. Exported frames will be raw data!"
                     )
 
